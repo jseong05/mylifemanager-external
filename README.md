@@ -1,71 +1,72 @@
 # 📱 마이 라이프 매니저 External
 
-> 기존 `mylifemanager`를 바탕으로 AI 자산 관리 기능과 생활 관리 편의 기능을 확장한 Android 실험용 앱입니다. 원본 앱과 별도 설치할 수 있도록 패키지 이름을 `com.mlm.external`로 분리했습니다.
+> **하루의 일정과 지출을 기록하고, AI와 함께 더 나은 소비 습관을 만들어 보세요.** 마이 라이프 매니저 External은 가계부와 일정 관리에 AI 재무 상담, 홈 화면 위젯, 백업 기능을 더한 Android 실험용 앱입니다.
 
-- **원본 저장소:** [jseong05/mylifemanager](https://github.com/jseong05/mylifemanager)
-- **External 저장소:** [jseong05/mylifemanager-external](https://github.com/jseong05/mylifemanager-external)
+[English](README_EN.md) · [원본 앱 저장소](https://github.com/jseong05/mylifemanager) · [External 저장소](https://github.com/jseong05/mylifemanager-external)
 
-## ✨ 원본 대비 추가·변경 사항
+## ✨ 프로젝트 소개
 
-| 영역 | External에서 추가·변경된 내용 |
+이 프로젝트는 기존 [마이 라이프 매니저](https://github.com/jseong05/mylifemanager)를 바탕으로 새로운 기능을 실험하는 별도 버전입니다. 원본 앱의 기본 가계부·일정·날씨 기능은 유지하면서 AI 자산 관리와 개인화 기능을 확장했습니다. 원본 앱과 함께 설치할 수 있도록 애플리케이션 ID를 `com.mlm.external`로 분리했습니다.
+
+## 🆕 원본 대비 추가·변경 사항
+
+| 영역 | External 버전의 추가·변경 사항 |
 | --- | --- |
-| AI 자산 관리 | Groq의 OpenAI 호환 Chat Completions API와 `llama-3.3-70b-versatile` 모델을 사용하는 AI 채팅, 대화 기록 저장, 세 가지 응답 페르소나 제공 |
-| 오프라인 AI 응답 | API 키가 없거나 네트워크/API 요청에 실패하면 키워드와 페르소나에 따른 로컬 응답으로 대체 |
-| 대시보드 | 저축 목표 달성률 표시, AI 채팅 바로가기 추가 |
+| AI 자산 관리 | Groq의 OpenAI 호환 Chat Completions API와 `llama-3.3-70b-versatile` 모델을 사용하는 AI 채팅, 저장되는 대화 기록, 세 가지 응답 페르소나 |
+| 오프라인 응답 | API 키가 없거나 네트워크/API 요청에 실패하면 앱 내부 규칙 기반 응답으로 대체 |
+| 대시보드 | 저축 목표 달성률 및 AI 채팅 바로가기 추가 |
 | 홈 화면 위젯 | 현재 잔액·오늘 지출·권장 지출액 위젯과 오늘 일정 미리보기 위젯 추가 |
-| 가계부 | 지출 카테고리 입력, 지출/수입/낭비 필터, 카테고리별 지출 통계 추가 |
-| 백업·복원 | 설정 화면에서 JSON 데이터 내보내기 및 복원 기능 추가 |
-| 알림 | 기존 일정·미기록 지출 알림에 아침 브리핑(매일 08:00)과 주간 리포트(일요일 20:00) 알림 추가 |
+| 가계부 | 지출 카테고리, 지출/수입/낭비 필터, 카테고리별 지출 통계 추가 |
+| 백업·복원 | JSON 형식으로 앱 데이터 내보내기 및 복원 |
+| 알림 | 기존 일정·지출 기록 알림에 매일 오전 8시 모닝 브리핑 및 매주 일요일 오후 8시 리포트 추가 |
 | 설정 | AI 페르소나, 통화 단위(KRW·USD·JPY·EUR) 선택 추가 |
-| 앱 식별자 | 원본 앱과 나란히 설치할 수 있도록 패키지/애플리케이션 ID를 `com.mlm.external`로 변경 |
+| 앱 식별자 | 원본 앱과 별도 설치하도록 패키지/애플리케이션 ID를 `com.mlm.external`로 변경 |
 
-### 가장 최근 변경
+### 최신 변경 사항
 
-현재 저장소의 최신 커밋은 **2026-11-13**에 AI 연결을 Gemini에서 Groq로 전환한 변경입니다. Groq API의 OpenAI 호환 Chat Completions 형식을 사용하며, 모델은 `llama-3.3-70b-versatile`입니다. 그 직전에는 API 오류를 표시하도록 개선하고, 통화 설정 및 오프라인 AI 응답을 추가했습니다.
-
-> AI 기능은 API에 연결할 수 없을 때 `OfflineAiEngine`의 로컬 응답으로 대체됩니다. 이 오프라인 응답은 외부 생성형 AI 모델 호출이 아니라 앱 내부 규칙 기반 응답입니다.
+2026년 11월 13일, 온라인 AI 연결을 Gemini에서 Groq로 전환했습니다. 현재 `AiClient`는 Groq의 OpenAI 호환 Chat Completions API와 `llama-3.3-70b-versatile` 모델을 사용합니다. API를 사용할 수 없으면 `OfflineAiEngine`의 로컬 규칙 기반 응답으로 대체합니다.
 
 ## 🌟 주요 기능
 
 ### 🏠 대시보드
-- 사용자 이름, 날짜, 현재 잔액 및 오늘 지출 표시
+- 사용자 이름, 날짜, 현재 잔액과 오늘 지출 표시
 - 용돈 지급일까지 남은 날짜와 오늘 권장 지출액 계산
 - 오늘 일정 및 최근 가계부 내역 요약
-- GPS 또는 선택한 도시의 날씨 표시
-- 저축 목표 달성률 표시
-- AI 자산 관리 채팅 화면으로 이동
+- GPS 또는 설정한 도시의 날씨 표시
+- 저축 목표 달성률 표시 및 AI 채팅 바로가기
 
 ### 💰 가계부
 - 수입·지출 내역 추가, 수정, 스와이프로 삭제
-- 내역 및 카테고리를 기준으로 검색
+- 내역 및 카테고리 검색
 - 지출·수입·낭비 내역 필터
-- 식비, 교통, 쇼핑, 문화, 기타 카테고리 지정 및 카테고리별 통계
-- 낭비 지출에 표시를 남기고 이번 달 건수와 금액 확인
+- 식비, 교통, 쇼핑, 문화, 기타 카테고리 지정 및 카테고리별 지출 통계
+- 낭비 지출 표시와 이번 달 낭비 건수·금액 집계
 - 초기 잔액과 내역을 바탕으로 현재 잔액 계산
 
 ### 📅 계획표와 알림
 - 달력에서 일정을 확인하고 일정이 있는 날짜 표시
 - 일정 추가, 수정, 완료 표시, 검색 및 스와이프 삭제
 - 반복 주기 설정: 반복 없음, 매주, 매월, 매년
-- 일정 시각 또는 사용자 지정 시간 전에 알림
-- 매일 오전 8시 모닝 브리핑 및 매주 일요일 오후 8시 주간 리포트 알림
-- 매일 오후 9시 오늘 지출 기록 리마인더
+- 일정 시각 또는 사용자 지정 시간 전 알림
+- 매일 오전 8시 모닝 브리핑, 매주 일요일 오후 8시 리포트, 매일 오후 9시 지출 기록 리마인더
 
 ### 🤖 AI 자산 관리
-- 현재 잔액과 오늘 지출 정보를 포함해 재무 관련 질문
-- 응답 페르소나 선택: 팩폭형 코치, 천사형 상담사, 냉철한 재무관
+- 현재 잔액과 오늘 지출을 참고한 재무 관련 대화
+- 페르소나 선택: 팩폭형 코치, 천사형 상담사, 냉철한 재무관
 - 채팅 기록을 기기에 저장
-- Groq API 요청이 실패하면 로컬 오프라인 응답 사용
+- Groq API를 사용할 수 없을 때 로컬 규칙 기반 응답 제공
+
+> 오프라인 응답은 외부 생성형 AI 모델 호출이 아닌 앱 내부의 키워드·페르소나 기반 응답입니다.
 
 ### 📱 홈 화면 위젯
-- **잔액 위젯:** 현재 잔액, 오늘 지출, 권장 지출액과 용돈 지급일까지 남은 날짜 표시
-- **일정 위젯:** 오늘의 일정 미리보기
+- **잔액 위젯:** 현재 잔액, 오늘 지출, 권장 지출액 및 용돈 지급일까지 남은 날짜
+- **일정 위젯:** 오늘 일정 미리보기
 
 ### ⚙️ 설정 및 데이터 관리
-- 사용자 이름, 초기 잔액, 용돈 금액과 주기 설정
-- 저축 목표와 통화 단위 설정(KRW, USD, JPY, EUR)
+- 사용자 이름, 초기 잔액, 용돈 금액 및 지급 주기 설정
+- 저축 목표, 통화 표시 단위(KRW·USD·JPY·EUR) 설정
 - GPS 사용 여부 및 날씨 조회 도시 설정
-- JSON 백업 내보내기 및 복원, 앱 데이터 초기화
+- JSON 백업 내보내기·복원 및 앱 데이터 초기화
 
 ## 🛠️ 기술 스택
 
@@ -84,13 +85,13 @@
 
 ```text
 app/src/main/java/com/mlm/external/
-├── MainActivity.java                  # 대시보드, 요약 정보와 정기 알림 예약
+├── MainActivity.java                  # 대시보드 및 정기 알림 예약
 ├── ExpenseActivity.java               # 가계부, 검색·필터·카테고리 통계
-├── ScheduleActivity.java              # 달력, 일정 CRUD 및 일정 알림
-├── SettingsActivity.java              # 앱 설정, AI·통화·백업/복원
+├── ScheduleActivity.java              # 달력, 일정 관리 및 알림
+├── SettingsActivity.java              # 설정, AI·통화·백업/복원
 ├── AiChatActivity.java                # AI 채팅 및 대화 기록
-├── AiClient.java                      # Groq API 요청과 오류/오프라인 처리
-├── OfflineAiEngine.java               # 로컬 규칙 기반 AI 대체 응답
+├── AiClient.java                      # Groq API 요청
+├── OfflineAiEngine.java               # 로컬 규칙 기반 대체 응답
 ├── MyDataStore.java                   # SharedPreferences/Gson 데이터 관리
 ├── BalanceWidgetProvider.java          # 잔액 위젯
 ├── ScheduleWidgetProvider.java         # 일정 위젯
@@ -123,15 +124,15 @@ app/src/main/res/
 
 ## 🔑 API 키 설정
 
-날씨 조회와 온라인 AI 채팅에 각각 API 키를 사용할 수 있습니다. 프로젝트 루트의 `local.properties`에 다음 값을 설정하세요.
+날씨 조회와 온라인 AI 채팅에 API 키를 사용할 수 있습니다. 프로젝트 루트의 `local.properties`에 다음 값을 설정하세요.
 
 ```properties
 weatherApiKey=YOUR_OPENWEATHERMAP_API_KEY
 aiApiKey=gsk_YOUR_GROQ_API_KEY
 ```
 
-- 날씨 기능은 OpenWeatherMap 키를 사용합니다.
-- 온라인 AI 응답은 Groq API 키를 사용합니다. 키가 없으면 오프라인 응답을 사용합니다.
-- 키는 저장소에 커밋하지 마세요. `local.properties`는 `.gitignore`에 포함되어 있습니다.
-- 앱 클라이언트에 포함된 API 키는 배포된 APK에서 추출될 수 있습니다. 실제 배포에서 키를 보호해야 한다면 서버 프록시를 통한 API 호출을 고려하세요.
+- 날씨 기능은 OpenWeatherMap API 키를 사용합니다.
+- 온라인 AI 응답은 Groq API 키를 사용합니다. 키가 없거나 요청이 실패하면 로컬 대체 응답을 사용합니다.
+- API 키를 저장소에 커밋하지 마세요. `local.properties`는 `.gitignore`에 포함되어 있습니다.
+- 앱 클라이언트에 포함된 API 키는 배포된 APK에서 추출될 수 있습니다. 실제 배포에서 키를 보호하려면 서버 프록시를 통한 API 호출을 고려하세요.
 - GPS 날씨를 사용하려면 위치 권한을 허용해야 합니다. 권한이 없거나 위치를 가져올 수 없으면 설정한 도시를 사용합니다.
