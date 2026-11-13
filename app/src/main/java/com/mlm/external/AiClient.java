@@ -18,7 +18,15 @@ import java.util.concurrent.Executors;
 public class AiClient {
     private static final String API_KEY = BuildConfig.AI_API_KEY;
     private static final String ENDPOINT = "https://api.groq.com/openai/v1/chat/completions";
-    private static final String MODEL_NAME = "gemma2-9b-it";
+
+    // 지원하는 Groq 모델 후보군 순회 (하나가 실패하거나 퇴역되었어도 다음 모델로 자동 시도)
+    private static final String[] MODEL_CANDIDATES = {
+            "llama-3.3-70b-versatile",
+            "llama-3.1-8b-instant",
+            "gemma2-9b-it",
+            "deepseek-r1-distill-llama-70b"
+    };
+
     private static final ExecutorService EXECUTOR = Executors.newSingleThreadExecutor();
 
     public interface AiCallback {
@@ -29,104 +37,99 @@ public class AiClient {
     public static void generateAiResponse(String userPrompt, String persona, int balance, int todayExpense, AiCallback callback) {
         Handler handler = new Handler(Looper.getMainLooper());
 
-        Log.d("AiClient", "API_KEY check: " + (API_KEY != null && API_KEY.length() > 6 ? API_KEY.substring(0, 6) + "..." : API_KEY));
-
         if (API_KEY == null || API_KEY.isEmpty() || !API_KEY.startsWith("gsk_")) {
-            Log.w("AiClient", "API_KEY is missing or invalid! Using offline engine.");
             String offlineReply = OfflineAiEngine.getResponse(userPrompt, persona, balance, todayExpense);
             handler.post(() -> callback.onSuccess(offlineReply));
             return;
         }
 
         EXECUTOR.execute(() -> {
-            HttpURLConnection conn = null;
-            try {
-                URL url = new URL(ENDPOINT);
-                conn = (HttpURLConnection) url.openConnection();
-                conn.setRequestMethod("POST");
-                conn.setRequestProperty("Content-Type", "application/json; charset=utf-8");
-                conn.setRequestProperty("Authorization", "Bearer " + API_KEY);
-                conn.setConnectTimeout(8000);
-                conn.setReadTimeout(8000);
-                conn.setDoOutput(true);
+            boolean success = false;
+            String resultText = null;
 
-                String personaInstruction = getPersonaInstruction(persona);
-                String systemContext = String.format(Locale.getDefault(), "지침: %s\n현재 사용자 재무 상태 - 잔액: %,d원, 오늘 지출: %,d원",
-                        personaInstruction, balance, todayExpense);
+            for (String modelName : MODEL_CANDIDATES) {
+                HttpURLConnection conn = null;
+                try {
+                    URL url = new URL(ENDPOINT);
+                    conn = (HttpURLConnection) url.openConnection();
+                    conn.setRequestMethod("POST");
+                    conn.setRequestProperty("Content-Type", "application/json; charset=utf-8");
+                    conn.setRequestProperty("Authorization", "Bearer " + API_KEY);
+                    conn.setConnectTimeout(6000);
+                    conn.setReadTimeout(6000);
+                    conn.setDoOutput(true);
 
-                JsonArray messagesArray = new JsonArray();
+                    String personaInstruction = getPersonaInstruction(persona);
+                    String systemContext = String.format(Locale.getDefault(), "지침: %s\n현재 사용자 재무 상태 - 잔액: %,d원, 오늘 지출: %,d원",
+                            personaInstruction, balance, todayExpense);
 
-                JsonObject systemMsg = new JsonObject();
-                systemMsg.addProperty("role", "system");
-                systemMsg.addProperty("content", systemContext);
-                messagesArray.add(systemMsg);
+                    JsonArray messagesArray = new JsonArray();
 
-                JsonObject userMsg = new JsonObject();
-                userMsg.addProperty("role", "user");
-                userMsg.addProperty("content", userPrompt);
-                messagesArray.add(userMsg);
+                    JsonObject systemMsg = new JsonObject();
+                    systemMsg.addProperty("role", "system");
+                    systemMsg.addProperty("content", systemContext);
+                    messagesArray.add(systemMsg);
 
-                JsonObject requestBody = new JsonObject();
-                requestBody.addProperty("model", MODEL_NAME);
-                requestBody.add("messages", messagesArray);
-                requestBody.addProperty("temperature", 0.7);
+                    JsonObject userMsg = new JsonObject();
+                    userMsg.addProperty("role", "user");
+                    userMsg.addProperty("content", userPrompt);
+                    messagesArray.add(userMsg);
 
-                String jsonPayload = requestBody.toString();
+                    JsonObject requestBody = new JsonObject();
+                    requestBody.addProperty("model", modelName);
+                    requestBody.add("messages", messagesArray);
+                    requestBody.addProperty("temperature", 0.7);
 
-                OutputStream os = conn.getOutputStream();
-                os.write(jsonPayload.getBytes("UTF-8"));
-                os.flush();
-                os.close();
+                    String jsonPayload = requestBody.toString();
 
-                int responseCode = conn.getResponseCode();
-                Log.d("AiClient", "Groq Response Code: " + responseCode);
+                    OutputStream os = conn.getOutputStream();
+                    os.write(jsonPayload.getBytes("UTF-8"));
+                    os.flush();
+                    os.close();
 
-                if (responseCode == HttpURLConnection.HTTP_OK) {
-                    BufferedReader in = new BufferedReader(new InputStreamReader(conn.getInputStream(), "UTF-8"));
-                    StringBuilder response = new StringBuilder();
-                    String inputLine;
-                    while ((inputLine = in.readLine()) != null) {
-                        response.append(inputLine);
-                    }
-                    in.close();
+                    int responseCode = conn.getResponseCode();
+                    Log.d("AiClient", "Model: " + modelName + " | Response Code: " + responseCode);
 
-                    Gson gson = new Gson();
-                    JsonObject jsonResponse = gson.fromJson(response.toString(), JsonObject.class);
-                    JsonArray choices = jsonResponse.getAsJsonArray("choices");
-                    if (choices != null && !choices.isEmpty()) {
-                        JsonObject choice = choices.get(0).getAsJsonObject();
-                        JsonObject message = choice.getAsJsonObject("message");
-                        if (message != null && message.has("content")) {
-                            String aiText = message.get("content").getAsString();
-                            handler.post(() -> callback.onSuccess(aiText.trim()));
-                            return;
+                    if (responseCode == HttpURLConnection.HTTP_OK) {
+                        BufferedReader in = new BufferedReader(new InputStreamReader(conn.getInputStream(), "UTF-8"));
+                        StringBuilder response = new StringBuilder();
+                        String inputLine;
+                        while ((inputLine = in.readLine()) != null) {
+                            response.append(inputLine);
+                        }
+                        in.close();
+
+                        Gson gson = new Gson();
+                        JsonObject jsonResponse = gson.fromJson(response.toString(), JsonObject.class);
+                        JsonArray choices = jsonResponse.getAsJsonArray("choices");
+                        if (choices != null && !choices.isEmpty()) {
+                            JsonObject choice = choices.get(0).getAsJsonObject();
+                            JsonObject message = choice.getAsJsonObject("message");
+                            if (message != null && message.has("content")) {
+                                resultText = message.get("content").getAsString().trim();
+                                success = true;
+                                break; // 성공 시 루프 탈출
+                            }
                         }
                     }
-                    String offlineReply = OfflineAiEngine.getResponse(userPrompt, persona, balance, todayExpense);
-                    handler.post(() -> callback.onSuccess(offlineReply));
-                } else {
-                    BufferedReader errIn = new BufferedReader(new InputStreamReader(conn.getErrorStream(), "UTF-8"));
-                    StringBuilder errResp = new StringBuilder();
-                    String line;
-                    while ((line = errIn.readLine()) != null) {
-                        errResp.append(line);
+                } catch (Exception e) {
+                    Log.w("AiClient", "Model " + modelName + " failed: " + e.getMessage());
+                } finally {
+                    if (conn != null) {
+                        try {
+                            conn.disconnect();
+                        } catch (Exception ignored) {}
                     }
-                    errIn.close();
+                }
+            }
 
-                    Log.e("AiClient", "Groq API Error: " + errResp.toString());
-                    String errorMsg = "Groq API 에러 (" + responseCode + "): " + errResp.toString();
-                    handler.post(() -> callback.onSuccess(errorMsg));
-                }
-            } catch (Exception e) {
-                Log.e("AiClient", "Groq Network Exception", e);
-                String errorMsg = "Groq 네트워크 에러: " + e.getMessage();
-                handler.post(() -> callback.onSuccess(errorMsg));
-            } finally {
-                if (conn != null) {
-                    try {
-                        conn.disconnect();
-                    } catch (Exception ignored) {}
-                }
+            if (success && resultText != null) {
+                final String finalRes = resultText;
+                handler.post(() -> callback.onSuccess(finalRes));
+            } else {
+                // 모든 후보 모델 실패 시 오프라인 엔진으로 자동 폴백
+                String offlineReply = OfflineAiEngine.getResponse(userPrompt, persona, balance, todayExpense);
+                handler.post(() -> callback.onSuccess(offlineReply));
             }
         });
     }
