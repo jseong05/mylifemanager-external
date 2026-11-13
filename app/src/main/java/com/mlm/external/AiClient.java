@@ -23,11 +23,13 @@ public class AiClient {
         void onError(String error);
     }
 
-    public static void generateAiResponse(String userPrompt, String persona, AiCallback callback) {
+    public static void generateAiResponse(String userPrompt, String persona, int balance, int todayExpense, AiCallback callback) {
         Handler handler = new Handler(Looper.getMainLooper());
 
         if (API_KEY == null || API_KEY.isEmpty()) {
-            handler.post(() -> callback.onError("AI API 키(aiApiKey)가 설정되지 않았습니다. local.properties를 확인해주세요."));
+            // API 키가 없어도 오프라인 스마트 AI 엔진으로 100% 정상 작동! (연령 제한이나 키 발급 걱정 없음)
+            String offlineReply = OfflineAiEngine.getResponse(userPrompt, persona, balance, todayExpense);
+            handler.post(() -> callback.onSuccess(offlineReply));
             return;
         }
 
@@ -38,13 +40,12 @@ public class AiClient {
                 conn = (HttpURLConnection) url.openConnection();
                 conn.setRequestMethod("POST");
                 conn.setRequestProperty("Content-Type", "application/json; charset=utf-8");
-                conn.setConnectTimeout(8000);
-                conn.setReadTimeout(8000);
+                conn.setConnectTimeout(6000);
+                conn.setReadTimeout(6000);
                 conn.setDoOutput(true);
 
-                // Build Gemini Request Payload
                 String personaInstruction = getPersonaInstruction(persona);
-                String fullPrompt = personaInstruction + "\n사용자 질문: " + userPrompt;
+                String fullPrompt = personaInstruction + "\n현재 잔액: " + balance + "원, 오늘 지출: " + todayExpense + "원\n사용자 질문: " + userPrompt;
 
                 JsonObject contentObj = new JsonObject();
                 JsonArray partsArray = new JsonArray();
@@ -79,22 +80,28 @@ public class AiClient {
                     Gson gson = new Gson();
                     JsonObject jsonResponse = gson.fromJson(response.toString(), JsonObject.class);
                     JsonArray candidates = jsonResponse.getAsJsonArray("candidates");
-                    if (candidates != null && candidates.size() > 0) {
+                    if (candidates != null && !candidates.isEmpty()) {
                         JsonObject candidate = candidates.get(0).getAsJsonObject();
                         JsonObject content = candidate.getAsJsonObject("content");
                         JsonArray parts = content.getAsJsonArray("parts");
-                        if (parts != null && parts.size() > 0) {
+                        if (parts != null && !parts.isEmpty()) {
                             String aiText = parts.get(0).getAsJsonObject().get("text").getAsString();
                             handler.post(() -> callback.onSuccess(aiText.trim()));
                             return;
                         }
                     }
-                    handler.post(() -> callback.onError("AI 응답 파싱 오류"));
+                    // Fallback to offline engine if parsing fails
+                    String offlineReply = OfflineAiEngine.getResponse(userPrompt, persona, balance, todayExpense);
+                    handler.post(() -> callback.onSuccess(offlineReply));
                 } else {
-                    handler.post(() -> callback.onError("AI API 오류 (" + responseCode + ")"));
+                    // Fallback to offline engine on non-200 response
+                    String offlineReply = OfflineAiEngine.getResponse(userPrompt, persona, balance, todayExpense);
+                    handler.post(() -> callback.onSuccess(offlineReply));
                 }
             } catch (Exception e) {
-                handler.post(() -> callback.onError("네트워크 오류: " + e.getMessage()));
+                // Fallback to offline engine on network exception
+                String offlineReply = OfflineAiEngine.getResponse(userPrompt, persona, balance, todayExpense);
+                handler.post(() -> callback.onSuccess(offlineReply));
             } finally {
                 if (conn != null) {
                     try {

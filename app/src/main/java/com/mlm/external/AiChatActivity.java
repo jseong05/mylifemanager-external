@@ -58,7 +58,7 @@ public class AiChatActivity extends AppCompatActivity {
             String contextPrompt = String.format("현재 잔액: %,d원, 오늘 지출: %,d원, 질문: %s",
                     dataManager.totalMoneyNow(), dataManager.getTodayExpenseAmount(), text);
 
-            AiClient.generateAiResponse(contextPrompt, persona, new AiClient.AiCallback() {
+            AiClient.generateAiResponse(contextPrompt, persona, dataManager.totalMoneyNow(), dataManager.getTodayExpenseAmount(), new AiClient.AiCallback() {
                 @Override
                 public void onSuccess(String responseText) {
                     AiMessage aiMsg = new AiMessage(UUID.randomUUID().toString(), "ai", responseText, System.currentTimeMillis());
@@ -70,7 +70,11 @@ public class AiChatActivity extends AppCompatActivity {
 
                 @Override
                 public void onError(String error) {
-                    Toast.makeText(AiChatActivity.this, error, Toast.LENGTH_SHORT).show();
+                    AiMessage aiMsg = new AiMessage(UUID.randomUUID().toString(), "ai", "오프라인 AI 응답: " + error, System.currentTimeMillis());
+                    messageList.add(aiMsg);
+                    dataManager.saveChatMessages(messageList);
+                    adapter.updateData(messageList);
+                    binding.rvChatMessages.scrollToPosition(messageList.size() - 1);
                 }
             });
         });
