@@ -1,12 +1,12 @@
 # 📱 My Life Manager External
 
-> **Track your plans and spending, then build better money habits with AI.** My Life Manager External is an experimental Android app that extends a personal finance tracker and planner with AI-powered financial chat, home-screen widgets, and data backup.
+> **AI-powered financial coaching, expense and schedule tracking, and home-screen widgets in one Android app.**
 
 [한국어](README.md) · [Original app repository](https://github.com/jseong05/mylifemanager) · [External repository](https://github.com/jseong05/mylifemanager-external)
 
 ## ✨ About the project
 
-This repository is an experimental companion version of [My Life Manager](https://github.com/jseong05/mylifemanager). It keeps the original app's core expense tracking, schedule planning, and weather features while exploring AI-assisted money management and other personalized tools. Its application ID is `com.mlm.external`, so it can be installed alongside the original app.
+My Life Manager External is an experimental Android companion to [My Life Manager](https://github.com/jseong05/mylifemanager), adding AI financial chat, home-screen widgets, and data backup to the original expense and schedule tools. Its application ID, `com.mlm.external`, allows it to be installed alongside the original app.
 
 ## 🆕 What’s new compared with the original
 

@@ -1,12 +1,12 @@
 # 📱 마이 라이프 매니저 External
 
-> **하루의 일정과 지출을 기록하고, AI와 함께 더 나은 소비 습관을 만들어 보세요.** 마이 라이프 매니저 External은 가계부와 일정 관리에 AI 재무 상담, 홈 화면 위젯, 백업 기능을 더한 Android 실험용 앱입니다.
+> **AI 재무 코칭과 가계부·일정 관리, 홈 화면 위젯을 하나로 담은 Android 앱.**
 
 [English](README_EN.md) · [원본 앱 저장소](https://github.com/jseong05/mylifemanager) · [External 저장소](https://github.com/jseong05/mylifemanager-external)
 
 ## ✨ 프로젝트 소개
 
-이 프로젝트는 기존 [마이 라이프 매니저](https://github.com/jseong05/mylifemanager)를 바탕으로 새로운 기능을 실험하는 별도 버전입니다. 원본 앱의 기본 가계부·일정·날씨 기능은 유지하면서 AI 자산 관리와 개인화 기능을 확장했습니다. 원본 앱과 함께 설치할 수 있도록 애플리케이션 ID를 `com.mlm.external`로 분리했습니다.
+마이 라이프 매니저 External은 기존 [마이 라이프 매니저](https://github.com/jseong05/mylifemanager)의 가계부·일정 관리 기능을 바탕으로 AI 재무 상담, 홈 화면 위젯, 데이터 백업을 더한 실험용 Android 앱입니다. 원본 앱과 함께 설치할 수 있도록 앱 ID를 `com.mlm.external`로 분리했습니다.
 
 ## 🆕 원본 대비 추가·변경 사항
 
