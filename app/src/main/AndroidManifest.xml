@@ -39,6 +39,8 @@
         <activity android:name=".SettingsActivity" />
         <receiver android:name=".ScheduleAlarmReceiver" android:exported="false" />
         <receiver android:name=".DailyExpenseAlarmReceiver" android:exported="false" />
+        <receiver android:name=".MorningBriefingAlarmReceiver" android:exported="false" />
+        <receiver android:name=".WeeklyReportAlarmReceiver" android:exported="false" />
 
         <receiver
             android:name=".BalanceWidgetProvider"

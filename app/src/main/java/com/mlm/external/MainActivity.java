@@ -66,6 +66,8 @@ public class MainActivity extends AppCompatActivity {
 
         // 매일 밤 21:00 지출 미입력 체크 푸시 알림 예약
         setupDailyExpenseReminder();
+        setupMorningBriefingAlarm();
+        setupWeeklyReportAlarm();
 
 
         ViewCompat.setOnApplyWindowInsetsListener(binding.main, (v, insets) -> {
@@ -385,6 +387,69 @@ public class MainActivity extends AppCompatActivity {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    private void setupMorningBriefingAlarm() {
+        try {
+            AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+            Intent intent = new Intent(this, MorningBriefingAlarmReceiver.class);
+            PendingIntent pendingIntent = PendingIntent.getBroadcast(
+                    this, 2002, intent, PendingIntent.FLAG_NO_CREATE | PendingIntent.FLAG_IMMUTABLE
+            );
+            if (pendingIntent == null && alarmManager != null) {
+                Calendar calendar = Calendar.getInstance();
+                calendar.set(Calendar.HOUR_OF_DAY, 8);
+                calendar.set(Calendar.MINUTE, 0);
+                calendar.set(Calendar.SECOND, 0);
+                if (calendar.getTimeInMillis() <= System.currentTimeMillis()) {
+                    calendar.add(Calendar.DAY_OF_YEAR, 1);
+                }
+                PendingIntent newPendingIntent = PendingIntent.getBroadcast(
+                        this, 2002, intent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE
+                );
+                try {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && alarmManager.canScheduleExactAlarms()) {
+                        alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), newPendingIntent);
+                    } else {
+                        alarmManager.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), newPendingIntent);
+                    }
+                } catch (SecurityException se) {
+                    alarmManager.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), newPendingIntent);
+                }
+            }
+        } catch (Exception ignored) {}
+    }
+
+    private void setupWeeklyReportAlarm() {
+        try {
+            AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+            Intent intent = new Intent(this, WeeklyReportAlarmReceiver.class);
+            PendingIntent pendingIntent = PendingIntent.getBroadcast(
+                    this, 2003, intent, PendingIntent.FLAG_NO_CREATE | PendingIntent.FLAG_IMMUTABLE
+            );
+            if (pendingIntent == null && alarmManager != null) {
+                Calendar calendar = Calendar.getInstance();
+                calendar.set(Calendar.DAY_OF_WEEK, Calendar.SUNDAY);
+                calendar.set(Calendar.HOUR_OF_DAY, 20);
+                calendar.set(Calendar.MINUTE, 0);
+                calendar.set(Calendar.SECOND, 0);
+                if (calendar.getTimeInMillis() <= System.currentTimeMillis()) {
+                    calendar.add(Calendar.WEEK_OF_YEAR, 1);
+                }
+                PendingIntent newPendingIntent = PendingIntent.getBroadcast(
+                        this, 2003, intent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE
+                );
+                try {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && alarmManager.canScheduleExactAlarms()) {
+                        alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), newPendingIntent);
+                    } else {
+                        alarmManager.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), newPendingIntent);
+                    }
+                } catch (SecurityException se) {
+                    alarmManager.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), newPendingIntent);
+                }
+            }
+        } catch (Exception ignored) {}
     }
 
     private boolean isScheduleOnDate(Schedule s, String targetDateText) {
