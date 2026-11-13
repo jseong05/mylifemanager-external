@@ -10,12 +10,14 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.Locale;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class AiClient {
     private static final String API_KEY = BuildConfig.AI_API_KEY;
-    private static final String ENDPOINT = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=";
+    private static final String ENDPOINT = "https://api.groq.com/openai/v1/chat/completions";
+    private static final String MODEL_NAME = "llama-3.3-70b-versatile";
     private static final ExecutorService EXECUTOR = Executors.newSingleThreadExecutor();
 
     public interface AiCallback {
@@ -26,37 +28,48 @@ public class AiClient {
     public static void generateAiResponse(String userPrompt, String persona, int balance, int todayExpense, AiCallback callback) {
         Handler handler = new Handler(Looper.getMainLooper());
 
-        if (API_KEY == null || API_KEY.isEmpty()) {
-            handler.post(() -> callback.onError("AI API 키(aiApiKey)가 설정되지 않았습니다."));
+        if (API_KEY == null || API_KEY.isEmpty() || !API_KEY.startsWith("gsk_")) {
+            // API 키가 없거나 형식이 올바르지 않으면 오프라인 스마트 AI 엔진으로 즉시 폴백
+            String offlineReply = OfflineAiEngine.getResponse(userPrompt, persona, balance, todayExpense);
+            handler.post(() -> callback.onSuccess(offlineReply));
             return;
         }
 
         EXECUTOR.execute(() -> {
             HttpURLConnection conn = null;
             try {
-                URL url = new URL(ENDPOINT + API_KEY);
+                URL url = new URL(ENDPOINT);
                 conn = (HttpURLConnection) url.openConnection();
                 conn.setRequestMethod("POST");
                 conn.setRequestProperty("Content-Type", "application/json; charset=utf-8");
-                conn.setConnectTimeout(6000);
-                conn.setReadTimeout(6000);
+                conn.setRequestProperty("Authorization", "Bearer " + API_KEY);
+                conn.setConnectTimeout(8000);
+                conn.setReadTimeout(8000);
                 conn.setDoOutput(true);
 
+                // Build OpenAI-compatible Chat Completions payload for Groq
                 String personaInstruction = getPersonaInstruction(persona);
-                String fullPrompt = personaInstruction + "\n현재 잔액: " + balance + "원, 오늘 지출: " + todayExpense + "원\n사용자 질문: " + userPrompt;
+                String systemContext = String.format(Locale.getDefault(), "지침: %s\n현재 사용자 재무 상태 - 잔액: %,d원, 오늘 지출: %,d원",
+                        personaInstruction, balance, todayExpense);
 
-                JsonObject contentObj = new JsonObject();
-                JsonArray partsArray = new JsonArray();
-                JsonObject partObj = new JsonObject();
-                partObj.addProperty("text", fullPrompt);
-                partsArray.add(partObj);
-                contentObj.add("parts", partsArray);
+                JsonArray messagesArray = new JsonArray();
 
-                JsonArray contentsArray = new JsonArray();
-                contentsArray.add(contentObj);
+                // System message (Persona & Context)
+                JsonObject systemMsg = new JsonObject();
+                systemMsg.addProperty("role", "system");
+                systemMsg.addProperty("content", systemContext);
+                messagesArray.add(systemMsg);
+
+                // User message
+                JsonObject userMsg = new JsonObject();
+                userMsg.addProperty("role", "user");
+                userMsg.addProperty("content", userPrompt);
+                messagesArray.add(userMsg);
 
                 JsonObject requestBody = new JsonObject();
-                requestBody.add("contents", contentsArray);
+                requestBody.addProperty("model", MODEL_NAME);
+                requestBody.add("messages", messagesArray);
+                requestBody.addProperty("temperature", 0.7);
 
                 String jsonPayload = requestBody.toString();
 
@@ -77,18 +90,19 @@ public class AiClient {
 
                     Gson gson = new Gson();
                     JsonObject jsonResponse = gson.fromJson(response.toString(), JsonObject.class);
-                    JsonArray candidates = jsonResponse.getAsJsonArray("candidates");
-                    if (candidates != null && !candidates.isEmpty()) {
-                        JsonObject candidate = candidates.get(0).getAsJsonObject();
-                        JsonObject content = candidate.getAsJsonObject("content");
-                        JsonArray parts = content.getAsJsonArray("parts");
-                        if (parts != null && !parts.isEmpty()) {
-                            String aiText = parts.get(0).getAsJsonObject().get("text").getAsString();
+                    JsonArray choices = jsonResponse.getAsJsonArray("choices");
+                    if (choices != null && !choices.isEmpty()) {
+                        JsonObject choice = choices.get(0).getAsJsonObject();
+                        JsonObject message = choice.getAsJsonObject("message");
+                        if (message != null && message.has("content")) {
+                            String aiText = message.get("content").getAsString();
                             handler.post(() -> callback.onSuccess(aiText.trim()));
                             return;
                         }
                     }
-                    handler.post(() -> callback.onError("AI 응답 파싱 오류"));
+                    // Fallback to offline engine if parsing fails
+                    String offlineReply = OfflineAiEngine.getResponse(userPrompt, persona, balance, todayExpense);
+                    handler.post(() -> callback.onSuccess(offlineReply));
                 } else {
                     BufferedReader errIn = new BufferedReader(new InputStreamReader(conn.getErrorStream(), "UTF-8"));
                     StringBuilder errResp = new StringBuilder();
@@ -97,11 +111,15 @@ public class AiClient {
                         errResp.append(line);
                     }
                     errIn.close();
-                    String errorMsg = "API 오류 (" + responseCode + "): " + errResp.toString();
-                    handler.post(() -> callback.onError(errorMsg));
+
+                    // Fallback to offline engine on Groq API error (rate limit, invalid key, etc.)
+                    String offlineReply = OfflineAiEngine.getResponse(userPrompt, persona, balance, todayExpense);
+                    handler.post(() -> callback.onSuccess(offlineReply));
                 }
             } catch (Exception e) {
-                handler.post(() -> callback.onError("네트워크/예외 오류: " + e.getMessage()));
+                // Fallback to offline engine on exception
+                String offlineReply = OfflineAiEngine.getResponse(userPrompt, persona, balance, todayExpense);
+                handler.post(() -> callback.onSuccess(offlineReply));
             } finally {
                 if (conn != null) {
                     try {
@@ -110,10 +128,6 @@ public class AiClient {
                 }
             }
         });
-    }
-
-    private static String getPersonInstruction(String persona) {
-        return getPersonaInstruction(persona);
     }
 
     private static String getPersonaInstruction(String persona) {
