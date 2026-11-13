@@ -1,0 +1,139 @@
+<resources>
+    <string name="app_name">MLM-마이 라이프 메니저 external 실험용</string>
+    <string name="action_settings">설정</string>
+
+    <!-- 메인 대시보드 -->
+    <string name="welcome_message">반가워요, 사용자님!</string>
+    <string name="today_expense">오늘 지출: 0원</string>
+    <string name="current_balance">현재 잔액</string>
+    <string name="settings_content_description">설정</string>
+    <string name="d_day_message">용돈 받는 날까지 D-15</string>
+    <string name="daily_recommended_message">오늘 권장 지출액: 5,000원</string>
+    <string name="today_schedule_title">오늘의 일정 (0)</string>
+    <string name="recent_expense_title">최근 내역</string>
+    <string name="empty_schedule">오늘 등록된 일정이 없어요</string>
+    <string name="empty_expense">최근 내역이 없어요</string>
+    <string name="btn_manage_schedule">+ 일정 관리</string>
+    <string name="btn_add_expense">+ 가계부</string>
+
+    <!-- 하단 네비게이션 -->
+    <string name="nav_home">홈</string>
+    <string name="nav_expense">가계부</string>
+    <string name="nav_schedule">계획표</string>
+
+    <!-- 일정 화면 -->
+    <string name="schedule_title">나의 계획표</string>
+    <string name="schedule_empty">등록된 일정이 없어요\n+ 버튼을 눌러 추가해 보세요</string>
+    <string name="add_schedule">일정 추가</string>
+
+    <!-- 가계부 화면 -->
+    <string name="expense_title">지출/수입 내역</string>
+    <string name="expense_empty">등록된 내역이 없어요\n+ 버튼을 눌러 추가해 보세요</string>
+    <string name="add_expense">내역 추가</string>
+
+    <!-- 내역 추가 다이얼로그 -->
+    <string name="hint_expense_title">내역 (예: 점심 식사)</string>
+    <string name="hint_expense_amount">금액 (예: 10000)</string>
+    <string name="label_expense">지출</string>
+    <string name="label_income">수입</string>
+    <string name="label_waste">이건 \'낭비\'였나요? (낭비 챌린지)</string>
+
+    <!-- 설정 화면 -->
+    <string name="settings_title">설정</string>
+    <string name="section_profile">프로필 정보</string>
+    <string name="section_allowance">용돈 설정</string>
+    <string name="hint_user_name">이름을 입력하세요 (예: 홍길동)</string>
+    <string name="hint_balance">현재 잔액 (예: 50000)</string>
+    <string name="hint_allowance_amount">지급할 용돈 금액 (예: 100000)</string>
+    <string name="label_allowance_cycle">용돈 지급 주기</string>
+    <string name="label_monthly">월간</string>
+    <string name="label_weekly">주간</string>
+    <string name="label_weekly_day">지급 요일 선택</string>
+    <string name="label_monthly_day">지급 날짜(일) 선택</string>
+    <string name="btn_save_settings">저장하기</string>
+    <string name="btn_reset_data">모든 데이터 초기화</string>
+    <string name="dialog_reset_title">전체 데이터 초기화</string>
+    <string name="dialog_reset_message">정말 모든 데이터를 초기화하시겠습니까?\n삭제된 데이터는 복구할 수 없습니다.</string>
+    <string name="btn_reset_confirm">초기화</string>
+
+    <string name="section_weather">날씨 및 위치 설정</string>
+    <string name="label_use_gps">GPS 기반 자동 위치 사용</string>
+    <string name="label_select_city">수동 위치 선택</string>
+
+    <string-array name="week_days">
+        <item>일요일</item>
+        <item>월요일</item>
+        <item>화요일</item>
+        <item>수요일</item>
+        <item>목요일</item>
+        <item>금요일</item>
+        <item>토요일</item>
+    </string-array>
+
+    <string-array name="cities_display">
+        <item>서울</item>
+        <item>부산</item>
+        <item>인천</item>
+        <item>대구</item>
+        <item>대전</item>
+        <item>광주</item>
+        <item>울산</item>
+        <item>수원</item>
+        <item>세종</item>
+        <item>제주</item>
+    </string-array>
+
+    <string-array name="cities_value">
+        <item>Seoul</item>
+        <item>Busan</item>
+        <item>Incheon</item>
+        <item>Daegu</item>
+        <item>Daejeon</item>
+        <item>Gwangju</item>
+        <item>Ulsan</item>
+        <item>Suwon</item>
+        <item>Sejong</item>
+        <item>Jeju</item>
+    </string-array>
+
+    <!-- 스플래시 화면 명언 28선 -->
+    <string-array name="quotes_array">
+        <item>\"오늘 하루도 알차고 가치 있게!\"</item>
+        <item>\"기억보다 확실한 것은 기록입니다.\"</item>
+        <item>\"작은 습관이 내일의 커다란 변화를 만듭니다.\"</item>
+        <item>\"계획은 미래를 현재로 끌어오는 기술입니다.\"</item>
+        <item>\"오늘의 지출을 기록하고 내일의 자유를 얻으세요.\"</item>
+        <item>\"티끌 모아 태산, 오늘 하루도 화이팅!\"</item>
+        <item>\"지출을 통제하는 자가 삶의 주인입니다.\"</item>
+        <item>\"절약은 그 자체로 가장 큰 소득입니다.\"</item>
+        <item>\"시간과 돈을 현명하게 관리해 보세요.\"</item>
+        <item>\"오늘 할 일을 내일로 미루지 마세요.\"</item>
+        <item>\"작은 아낌이 모여 커다란 결실을 맺습니다.\"</item>
+        <item>\"당신의 목표에 한 걸음 더 가까워지는 하루!\"</item>
+        <item>\"나의 가치가 지출보다 항상 중요합니다.\"</item>
+        <item>\"시작이 반이다, 오늘도 힘차게 출발!\"</item>
+        <item>\"현명한 소비는 나를 위한 최고의 투자입니다.\"</item>
+        <item>\"꾸준함이 결국 비범함을 만듭니다.\"</item>
+        <item>\"돈을 버는 것보다 지키는 것이 진짜 기술입니다.\"</item>
+        <item>\"오늘의 단정한 계획이 내일의 여유를 선물합니다.\"</item>
+        <item>\"낭비 없는 하루, 성취감 가득한 오늘!\"</item>
+        <item>\"계획대로 흘러가는 나만의 특별한 라이프.\"</item>
+        <item>\"스스로를 믿고 가치 있는 일에 투자하세요.\"</item>
+        <item>\"목표를 향해 차근차근 나아가는 중입니다.\"</item>
+        <item>\"좋은 습관이 나의 운명을 바꿉니다.\"</item>
+        <item>\"오늘 하루도 가계부와 계획표를 점검해 보세요.\"</item>
+        <item>\"지혜로운 관리로 소중한 미래를 설계하세요.\"</item>
+        <item>\"오늘 하루를 단정하게 정리하는 시간.\"</item>
+        <item>\"마이 라이프 매니저와 함께하는 건강한 라이프!\"</item>
+        <item>\"오늘도 수고할 당신을 진심으로 응원합니다.\"</item>
+    </string-array>
+
+    <!-- 낭비 챌린지 리포트 문자열 -->
+    <string name="waste_report_title">🚨 이번 달 낭비 챌린지 현황</string>
+    <string name="waste_report_zero">이번 달은 낭비 지출이 0원이에요! 완벽해요! 👏</string>
+    <string name="waste_report_format">이번 달 참아내지 못한 낭비 지출: 총 %1$d건 (%2$s원) 😅</string>
+
+    <!-- 검색창 문자열 -->
+    <string name="hint_search_expense">내역 검색어 입력 (예: 점심, 택시)</string>
+    <string name="hint_search_schedule">일정 검색어 입력 (예: 미팅, 과제)</string>
+</resources>
