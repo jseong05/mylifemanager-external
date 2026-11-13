@@ -101,8 +101,15 @@ public class SettingsActivity extends AppCompatActivity {
                 return;
             }
 
-            int balance = Integer.parseInt(balanceStr);
-            int allowance = allowanceStr.isEmpty() ? 0 : Integer.parseInt(allowanceStr);
+            int balance;
+            int allowance;
+            try {
+                balance = Integer.parseInt(balanceStr);
+                allowance = allowanceStr.isEmpty() ? 0 : Integer.parseInt(allowanceStr);
+            } catch (NumberFormatException e) {
+                Toast.makeText(this, "올바른 잔액과 용돈 금액을 입력해 주세요", Toast.LENGTH_SHORT).show();
+                return;
+            }
 
             boolean isWeekly = binding.rbWeekly.isChecked();
             String saveCycle = isWeekly ? "weekly" : "monthly";

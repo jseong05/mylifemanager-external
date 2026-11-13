@@ -122,21 +122,18 @@ public class ScheduleActivity extends AppCompatActivity {
             @Override
             public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
                 int position = viewHolder.getAdapterPosition();
-                List<Schedule> filteredList = getFilteredSchedules(selectedDate);
-                if (position >= 0 && position < filteredList.size()) {
-                    Schedule removedSchedule = filteredList.get(position);
-                    
-                    // 전체 리스트에서 제거
+                Schedule targetSchedule = adapter.getItem(position);
+                if (targetSchedule != null) {
                     List<Schedule> allList = dataManager.getSchedules();
                     for (int i = 0; i < allList.size(); i++) {
-                        if (allList.get(i).getId().equals(removedSchedule.getId())) {
+                        if (allList.get(i).getId().equals(targetSchedule.getId())) {
                             allList.remove(i);
                             break;
                         }
                     }
-                    cancelScheduleAlarm(removedSchedule.getId());
+                    cancelScheduleAlarm(targetSchedule.getId());
                     dataManager.saveSchedules(allList);
-                    filterSchedulesByDate(selectedDate);
+                    filterSchedulesByQuery(binding.etSearchSchedule.getText().toString().trim());
                     updateCalendarEvents();
                     Toast.makeText(ScheduleActivity.this, "일정이 삭제되었습니다.", Toast.LENGTH_SHORT).show();
                 }
@@ -602,14 +599,18 @@ public class ScheduleActivity extends AppCompatActivity {
                 );
 
                 if (alarmManager != null) {
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                        if (alarmManager.canScheduleExactAlarms()) {
-                            alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), pendingIntent);
+                    try {
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                            if (alarmManager.canScheduleExactAlarms()) {
+                                alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), pendingIntent);
+                            } else {
+                                alarmManager.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), pendingIntent);
+                            }
                         } else {
-                            alarmManager.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), pendingIntent);
+                            alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), pendingIntent);
                         }
-                    } else {
-                        alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), pendingIntent);
+                    } catch (SecurityException se) {
+                        alarmManager.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), pendingIntent);
                     }
                 }
             }

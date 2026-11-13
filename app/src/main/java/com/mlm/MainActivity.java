@@ -212,7 +212,7 @@ public class MainActivity extends AppCompatActivity {
             int currentConverted = (currentDayOfWeek == Calendar.SUNDAY) ? 6 : (currentDayOfWeek - 2);
 
             int diffDays = targetDayOfWeek - currentConverted;
-            if (diffDays <= 0) {
+            if (diffDays < 0) {
                 diffDays += 7;
             }
             daysLeft = diffDays;
@@ -232,10 +232,16 @@ public class MainActivity extends AppCompatActivity {
                 daysLeft = (int) (diff / (1000 * 60 * 60 * 24));
             }
         }
-        if (daysLeft <= 0) daysLeft = 1;
+        if (daysLeft < 0) daysLeft = 0;
 
-        int recommendedDaily = currentBalance / daysLeft;
-        binding.tvDDay.setText("용돈 받는 날까지 D-" + daysLeft);
+        int divisor = Math.max(1, daysLeft);
+        int recommendedDaily = currentBalance / divisor;
+
+        if (daysLeft == 0) {
+            binding.tvDDay.setText("🎉 오늘은 용돈 받는 날! (D-Day)");
+        } else {
+            binding.tvDDay.setText("용돈 받는 날까지 D-" + daysLeft);
+        }
         if (currentBalance < 0) {
             binding.tvDailyRecommended.setText("잔액 마이너스인데 진심이냐? 정신 차려라!!");
             binding.tvDailyRecommended.setTextColor(0xFFFF5252);

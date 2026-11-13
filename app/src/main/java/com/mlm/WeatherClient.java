@@ -36,9 +36,10 @@ public class WeatherClient {
         Handler handler = new Handler(Looper.getMainLooper());
 
         EXECUTOR.execute(() -> {
+            HttpURLConnection conn = null;
             try {
                 URL url = new URL(urlString);
-                HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+                conn = (HttpURLConnection) url.openConnection();
                 conn.setRequestMethod("GET");
                 conn.setConnectTimeout(5000);
                 conn.setReadTimeout(5000);
@@ -75,6 +76,12 @@ public class WeatherClient {
                 }
             } catch (Exception e) {
                 handler.post(() -> callback.onError("네트워크 오류: " + e.getMessage()));
+            } finally {
+                if (conn != null) {
+                    try {
+                        conn.disconnect();
+                    } catch (Exception ignored) {}
+                }
             }
         });
     }

@@ -79,6 +79,13 @@ public class ScheduleAdapter extends RecyclerView.Adapter<ScheduleAdapter.Schedu
         return scheduleList.size();
     }
 
+    public Schedule getItem(int position) {
+        if (scheduleList != null && position >= 0 && position < scheduleList.size()) {
+            return scheduleList.get(position);
+        }
+        return null;
+    }
+
     public void updateData(List<Schedule> newList) {
         this.scheduleList = newList;
         notifyDataSetChanged();
