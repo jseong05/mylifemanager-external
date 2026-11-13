@@ -46,7 +46,9 @@ public class ExpenseAdapter extends RecyclerView.Adapter<ExpenseAdapter.ExpenseV
             holder.binding.tvExpenseDate.setText(sdf.format(new Date(expense.getTimestamp())));
         }
 
-        String amountText = (expense.isMinus() ? "-" : "+") + expense.getMoney() + "원";
+        MyDataStore dataManager = new MyDataStore(holder.itemView.getContext());
+        String formattedMoney = dataManager.formatMoney(expense.getMoney());
+        String amountText = (expense.isMinus() ? "-" : "+") + formattedMoney;
         holder.binding.tvExpenseAmount.setText(amountText);
         holder.binding.tvExpenseAmount.setTextColor(
                 expense.isMinus() ? 0xFFFF5252 : 0xFF2196F3

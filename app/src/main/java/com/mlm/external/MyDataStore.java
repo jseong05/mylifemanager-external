@@ -30,6 +30,7 @@ public class MyDataStore {
     private static final String KEY_SAVINGS_GOAL = "target_savings_goal";
     private static final String KEY_AI_PERSONA = "ai_persona";
     private static final String KEY_AI_CHAT_HISTORY = "ai_chat_history";
+    private static final String KEY_CURRENCY = "app_currency";
 
     private Context context;
     private SharedPreferences prefs;
@@ -333,6 +334,38 @@ public class MyDataStore {
         } catch (Exception e) {
             e.printStackTrace();
             return new ArrayList<>();
+        }
+    }
+
+    public void saveCurrency(String currency) {
+        prefs.edit().putString(KEY_CURRENCY, currency).apply();
+    }
+
+    public String getCurrency() {
+        return prefs.getString(KEY_CURRENCY, "KRW");
+    }
+
+    public String getCurrencySymbol() {
+        String cur = getCurrency();
+        switch (cur) {
+            case "USD": return "$";
+            case "JPY": return "¥";
+            case "EUR": return "€";
+            case "KRW":
+            default: return "원";
+        }
+    }
+
+    public String formatMoney(int amount) {
+        String cur = getCurrency();
+        if ("USD".equals(cur)) {
+            return String.format(Locale.getDefault(), "$%,d", amount);
+        } else if ("JPY".equals(cur)) {
+            return String.format(Locale.getDefault(), "¥%,d", amount);
+        } else if ("EUR".equals(cur)) {
+            return String.format(Locale.getDefault(), "€%,d", amount);
+        } else {
+            return String.format(Locale.getDefault(), "%,d원", amount);
         }
     }
 }

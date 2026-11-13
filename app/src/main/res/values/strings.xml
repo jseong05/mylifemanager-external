@@ -27,6 +27,13 @@
         <item>냉철한 재무관</item>
     </string-array>
 
+    <string-array name="app_currencies">
+        <item>원 (KRW - ₩)</item>
+        <item>달러 (USD - $)</item>
+        <item>엔화 (JPY - ¥)</item>
+        <item>유로 (EUR - €)</item>
+    </string-array>
+
     <!-- 일정 화면 -->
     <string name="schedule_title">나의 계획표</string>
     <string name="schedule_empty">등록된 일정이 없어요\n+ 버튼을 눌러 추가해 보세요</string>

@@ -102,6 +102,16 @@ public class SettingsActivity extends AppCompatActivity {
             }
         }
 
+        // 통화 단위 세팅
+        String cur = dataManager.getCurrency();
+        String[] codes = {"KRW", "USD", "JPY", "EUR"};
+        for (int i = 0; i < codes.length; i++) {
+            if (codes[i].equalsIgnoreCase(cur)) {
+                binding.spCurrency.setSelection(i);
+                break;
+            }
+        }
+
         binding.btnSaveSettings.setOnClickListener(v -> {
             String name = binding.etUserName.getText().toString().trim();
             String balanceStr = binding.etInitialBalance.getText().toString().trim();
@@ -135,6 +145,9 @@ public class SettingsActivity extends AppCompatActivity {
             String saveCity = (cityPos >= 0 && cityPos < cityArray.length) ? cityArray[cityPos] : "Seoul";
 
             String savePersona = binding.spAiPersona.getSelectedItem().toString();
+            int curPos = binding.spCurrency.getSelectedItemPosition();
+            String[] currCodes = {"KRW", "USD", "JPY", "EUR"};
+            String saveCur = (curPos >= 0 && curPos < currCodes.length) ? currCodes[curPos] : "KRW";
 
             dataManager.saveUserName(name);
             dataManager.saveFirstMoney(balance);
@@ -145,6 +158,7 @@ public class SettingsActivity extends AppCompatActivity {
             dataManager.saveWeatherCity(saveCity);
             dataManager.saveTargetSavingsGoal(goal);
             dataManager.saveAiPersona(savePersona);
+            dataManager.saveCurrency(saveCur);
 
             Toast.makeText(this, "설정이 저장되었습니다.", Toast.LENGTH_SHORT).show();
             finish();
