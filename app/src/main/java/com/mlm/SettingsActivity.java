@@ -50,6 +50,7 @@ public class SettingsActivity extends AppCompatActivity {
         binding.etUserName.setText(dataManager.getUserName());
         binding.etInitialBalance.setText(String.valueOf(dataManager.getInitialBalance()));
         binding.etAllowanceAmount.setText(String.valueOf(dataManager.getAllowanceAmount()));
+        binding.etSavingsGoal.setText(String.valueOf(dataManager.getTargetSavingsGoal()));
 
         String cycle = dataManager.getAllowanceCycle();
         if ("weekly".equals(cycle)) {
@@ -95,6 +96,7 @@ public class SettingsActivity extends AppCompatActivity {
             String name = binding.etUserName.getText().toString().trim();
             String balanceStr = binding.etInitialBalance.getText().toString().trim();
             String allowanceStr = binding.etAllowanceAmount.getText().toString().trim();
+            String goalStr = binding.etSavingsGoal.getText().toString().trim();
 
             if (name.isEmpty() || balanceStr.isEmpty()) {
                 Toast.makeText(this, "이름과 잔액을 입력해주세요", Toast.LENGTH_SHORT).show();
@@ -103,11 +105,13 @@ public class SettingsActivity extends AppCompatActivity {
 
             int balance;
             int allowance;
+            int goal;
             try {
                 balance = Integer.parseInt(balanceStr);
                 allowance = allowanceStr.isEmpty() ? 0 : Integer.parseInt(allowanceStr);
+                goal = goalStr.isEmpty() ? 500000 : Integer.parseInt(goalStr);
             } catch (NumberFormatException e) {
-                Toast.makeText(this, "올바른 잔액과 용돈 금액을 입력해 주세요", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "올바른 잔액, 용돈 및 목표 금액을 입력해 주세요", Toast.LENGTH_SHORT).show();
                 return;
             }
 
@@ -127,6 +131,7 @@ public class SettingsActivity extends AppCompatActivity {
             dataManager.saveAllowanceDay(saveDay);
             dataManager.saveUseGps(saveUseGps);
             dataManager.saveWeatherCity(saveCity);
+            dataManager.saveTargetSavingsGoal(goal);
 
             Toast.makeText(this, "설정이 저장되었습니다.", Toast.LENGTH_SHORT).show();
             finish();

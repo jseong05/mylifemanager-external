@@ -212,7 +212,7 @@ public class MainActivity extends AppCompatActivity {
             int currentConverted = (currentDayOfWeek == Calendar.SUNDAY) ? 6 : (currentDayOfWeek - 2);
 
             int diffDays = targetDayOfWeek - currentConverted;
-            if (diffDays < 0) {
+            if (diffDays <= 0) {
                 diffDays += 7;
             }
             daysLeft = diffDays;
@@ -232,22 +232,29 @@ public class MainActivity extends AppCompatActivity {
                 daysLeft = (int) (diff / (1000 * 60 * 60 * 24));
             }
         }
-        if (daysLeft < 0) daysLeft = 0;
+        if (daysLeft <= 0) daysLeft = 1;
 
-        int divisor = Math.max(1, daysLeft);
-        int recommendedDaily = currentBalance / divisor;
-
-        if (daysLeft == 0) {
-            binding.tvDDay.setText("🎉 오늘은 용돈 받는 날! (D-Day)");
-        } else {
-            binding.tvDDay.setText("용돈 받는 날까지 D-" + daysLeft);
-        }
+        int recommendedDaily = currentBalance / daysLeft;
+        binding.tvDDay.setText("용돈 받는 날까지 D-" + daysLeft);
         if (currentBalance < 0) {
             binding.tvDailyRecommended.setText("잔액 마이너스인데 진심이냐? 정신 차려라!!");
             binding.tvDailyRecommended.setTextColor(0xFFFF5252);
         } else {
             binding.tvDailyRecommended.setText(String.format(Locale.getDefault(), "오늘 권장 지출액: %,d원", recommendedDaily));
             binding.tvDailyRecommended.setTextColor(0xFF1A73E8);
+        }
+
+        // 목표 저축 달성률 업데이트
+        int targetGoal = dataManager.getTargetSavingsGoal();
+        if (targetGoal > 0) {
+            int percent = (int) Math.min(100, Math.max(0, ((double) currentBalance / targetGoal) * 100));
+            binding.progressSavingsGoal.setProgress(percent);
+            binding.tvSavingsGoalPercent.setText(percent + "%");
+            binding.tvSavingsGoalStatus.setText(String.format(Locale.getDefault(), "목표액 %,d원 대비 현재 %,d원 (달성률 %d%%)", targetGoal, currentBalance, percent));
+        } else {
+            binding.progressSavingsGoal.setProgress(0);
+            binding.tvSavingsGoalPercent.setText("0%");
+            binding.tvSavingsGoalStatus.setText("목표 저축액이 설정되지 않았습니다.");
         }
         // 11/05
         // 반복 일정(매주, 매월, 매년) 고려하여 오늘 날짜에 해당하는 일정 필터링 (기존 단순 날짜 비교 버그 수정)

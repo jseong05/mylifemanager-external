@@ -122,7 +122,9 @@ public class ExpenseActivity extends AppCompatActivity {
 
         List<Expense> filtered = new java.util.ArrayList<>();
         for (Expense e : allList) {
-            if (e.getMemo() != null && e.getMemo().toLowerCase().contains(query.toLowerCase())) {
+            boolean matchMemo = e.getMemo() != null && e.getMemo().toLowerCase().contains(query.toLowerCase());
+            boolean matchCat = e.getCategory() != null && e.getCategory().toLowerCase().contains(query.toLowerCase());
+            if (matchMemo || matchCat) {
                 filtered.add(e);
             }
         }
@@ -162,6 +164,14 @@ public class ExpenseActivity extends AppCompatActivity {
     private void showAddOrEditExpenseDialog(Expense editExpense, int position) {
         DialogAddExpenseBinding dialogBinding = DialogAddExpenseBinding.inflate(LayoutInflater.from(this));
 
+        String[] categories = new String[]{"식비 🍔", "교통 🚌", "쇼핑 🛍️", "문화 🎬", "기타 📦"};
+        String[] categoryKeys = new String[]{"식비", "교통", "쇼핑", "문화", "기타"};
+        android.widget.ArrayAdapter<String> catAdapter = new android.widget.ArrayAdapter<>(
+                this, android.R.layout.simple_spinner_item, categories
+        );
+        catAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        dialogBinding.spExpenseCategory.setAdapter(catAdapter);
+
         if (editExpense != null) {
             dialogBinding.etExpenseTitle.setText(editExpense.getMemo());
             dialogBinding.etExpenseAmount.setText(String.valueOf(editExpense.getMoney()));
@@ -171,6 +181,14 @@ public class ExpenseActivity extends AppCompatActivity {
                 dialogBinding.rbIncome.setChecked(true);
             }
             dialogBinding.cbIsWaste.setChecked(editExpense.isWaste());
+
+            String currentCat = editExpense.getCategory();
+            for (int i = 0; i < categoryKeys.length; i++) {
+                if (categoryKeys[i].equalsIgnoreCase(currentCat)) {
+                    dialogBinding.spExpenseCategory.setSelection(i);
+                    break;
+                }
+            }
         }
 
         String titleText = (editExpense == null) ? "내역 추가" : "내역 수정";
@@ -198,16 +216,16 @@ public class ExpenseActivity extends AppCompatActivity {
 
                     boolean isMinusValue = dialogBinding.rbExpense.isChecked();
                     boolean isWasteValue = dialogBinding.cbIsWaste.isChecked();
+                    int selectedCatPos = dialogBinding.spExpenseCategory.getSelectedItemPosition();
+                    String selectedCategory = (selectedCatPos >= 0 && selectedCatPos < categoryKeys.length) ? categoryKeys[selectedCatPos] : "기타";
 
                     List<Expense> currentList = dataManager.getExpenses();
                     if (editExpense == null) {
-                        Expense newExpense = new Expense(UUID.randomUUID().toString(), memoStr, moneyValue, isMinusValue, isWasteValue);
+                        Expense newExpense = new Expense(UUID.randomUUID().toString(), memoStr, moneyValue, isMinusValue, isWasteValue, System.currentTimeMillis(), selectedCategory);
                         currentList.add(newExpense);
                         Toast.makeText(this, "내역이 추가되었습니다.", Toast.LENGTH_SHORT).show();
                     } else {
-                        // 11/05
-                        // 검색 필터링 상태에서도 고유 ID 기반으로 정확한 지출 내역을 수정하도록 보완 (인덱스 덮어쓰기 버그 해결)
-                        Expense updatedExpense = new Expense(editExpense.getId(), memoStr, moneyValue, isMinusValue, isWasteValue, editExpense.getTimestamp());
+                        Expense updatedExpense = new Expense(editExpense.getId(), memoStr, moneyValue, isMinusValue, isWasteValue, editExpense.getTimestamp(), selectedCategory);
                         for (int i = 0; i < currentList.size(); i++) {
                             if (currentList.get(i).getId().equals(editExpense.getId())) {
                                 currentList.set(i, updatedExpense);

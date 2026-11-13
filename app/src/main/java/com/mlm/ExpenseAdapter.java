@@ -36,6 +36,7 @@ public class ExpenseAdapter extends RecyclerView.Adapter<ExpenseAdapter.ExpenseV
     public void onBindViewHolder(@NonNull ExpenseViewHolder holder, int position) {
         Expense expense = expenseList.get(position);
         holder.binding.tvExpenseTitle.setText(expense.getMemo());
+        holder.binding.tvExpenseCategory.setText(expense.getCategory());
 
         // 10/17 날짜 미정(timestamp == 0)인 옛 지출 데이터 방어 코드
         if (expense.getTimestamp() == 0) {

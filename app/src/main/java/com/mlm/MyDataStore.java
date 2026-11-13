@@ -27,16 +27,17 @@ public class MyDataStore {
     private static final String KEY_USE_GPS = "use_gps_location";
     private static final String KEY_WEATHER_CITY = "weather_city";
     private static final String KEY_DATA_MIGRATED = "data_migrated_v2";
+    private static final String KEY_SAVINGS_GOAL = "target_savings_goal";
 
+    private Context context;
     private SharedPreferences prefs;
     private Gson gson;
 
     public MyDataStore(Context context) {
-        // Activity에서 Context를 받아 SharedPreferences를 초기화!
-        // 룸 데이터베이스로 나중에 바꿔야지 입학하면.
+        this.context = context.getApplicationContext();
         prefs = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
         gson = new Gson();
-        migrateLegacyData(); // 10/17 기존 데이터를 새 형식에 맞게 한 번만 변환 (구형 데이터 날짜 누락 방지)
+        migrateLegacyData();
     }
 
     private void migrateLegacyData() {
@@ -70,6 +71,7 @@ public class MyDataStore {
 
     public void saveFirstMoney(int balance) {
         prefs.edit().putInt(KEY_INITIAL_BALANCE, balance).apply();
+        updateWidgets();
     }
 
     public int getInitialBalance() {
@@ -79,6 +81,7 @@ public class MyDataStore {
     public void saveExpenses(List<Expense> list) {
         String json = gson.toJson(list);
         prefs.edit().putString(KEY_EXPENSES, json).apply();
+        updateWidgets();
     }
 
     public List<Expense> getExpenses() {
@@ -99,6 +102,16 @@ public class MyDataStore {
     public void saveSchedules(List<Schedule> list) {
         String json = gson.toJson(list);
         prefs.edit().putString(KEY_SCHEDULES, json).apply();
+        updateWidgets();
+    }
+
+    private void updateWidgets() {
+        if (context != null) {
+            try {
+                BalanceWidgetProvider.updateAllWidgets(context);
+                ScheduleWidgetProvider.updateAllWidgets(context);
+            } catch (Exception ignored) {}
+        }
     }
 
     /*
@@ -241,5 +254,13 @@ public class MyDataStore {
             }
         }
         return amount;
+    }
+
+    public void saveTargetSavingsGoal(int goal) {
+        prefs.edit().putInt(KEY_SAVINGS_GOAL, goal).apply();
+    }
+
+    public int getTargetSavingsGoal() {
+        return prefs.getInt(KEY_SAVINGS_GOAL, 500000);
     }
 }
