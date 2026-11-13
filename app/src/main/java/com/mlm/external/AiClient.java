@@ -27,9 +27,7 @@ public class AiClient {
         Handler handler = new Handler(Looper.getMainLooper());
 
         if (API_KEY == null || API_KEY.isEmpty()) {
-            // API 키가 없어도 오프라인 스마트 AI 엔진으로 100% 정상 작동! (연령 제한이나 키 발급 걱정 없음)
-            String offlineReply = OfflineAiEngine.getResponse(userPrompt, persona, balance, todayExpense);
-            handler.post(() -> callback.onSuccess(offlineReply));
+            handler.post(() -> callback.onError("AI API 키(aiApiKey)가 설정되지 않았습니다."));
             return;
         }
 
@@ -90,18 +88,20 @@ public class AiClient {
                             return;
                         }
                     }
-                    // Fallback to offline engine if parsing fails
-                    String offlineReply = OfflineAiEngine.getResponse(userPrompt, persona, balance, todayExpense);
-                    handler.post(() -> callback.onSuccess(offlineReply));
+                    handler.post(() -> callback.onError("AI 응답 파싱 오류"));
                 } else {
-                    // Fallback to offline engine on non-200 response
-                    String offlineReply = OfflineAiEngine.getResponse(userPrompt, persona, balance, todayExpense);
-                    handler.post(() -> callback.onSuccess(offlineReply));
+                    BufferedReader errIn = new BufferedReader(new InputStreamReader(conn.getErrorStream(), "UTF-8"));
+                    StringBuilder errResp = new StringBuilder();
+                    String line;
+                    while ((line = errIn.readLine()) != null) {
+                        errResp.append(line);
+                    }
+                    errIn.close();
+                    String errorMsg = "API 오류 (" + responseCode + "): " + errResp.toString();
+                    handler.post(() -> callback.onError(errorMsg));
                 }
             } catch (Exception e) {
-                // Fallback to offline engine on network exception
-                String offlineReply = OfflineAiEngine.getResponse(userPrompt, persona, balance, todayExpense);
-                handler.post(() -> callback.onSuccess(offlineReply));
+                handler.post(() -> callback.onError("네트워크/예외 오류: " + e.getMessage()));
             } finally {
                 if (conn != null) {
                     try {
@@ -110,6 +110,10 @@ public class AiClient {
                 }
             }
         });
+    }
+
+    private static String getPersonInstruction(String persona) {
+        return getPersonaInstruction(persona);
     }
 
     private static String getPersonaInstruction(String persona) {
