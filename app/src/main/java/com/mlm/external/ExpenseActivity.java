@@ -40,6 +40,14 @@ public class ExpenseActivity extends AppCompatActivity {
         });
         binding.rvExpenseList.setAdapter(adapter);
 
+        // 필터 칩 리스너
+        binding.chipGroupFilter.setOnCheckedChangeListener((group, checkedId) -> {
+            filterExpenses(binding.etSearchExpense.getText().toString().trim());
+        });
+
+        // 카테고리 통계 다이어로그 버튼
+        binding.btnCategoryStats.setOnClickListener(v -> showCategoryStatsDialog());
+
         // 11/05
         // 가계부 내역 키워드 실시간 검색 (TextWatcher 연동)
         binding.etSearchExpense.addTextChangedListener(new android.text.TextWatcher() {
@@ -111,25 +119,70 @@ public class ExpenseActivity extends AppCompatActivity {
     }
 
     private void filterExpenses(String query) {
-        // 11/05
-        // 가계부 검색어에 따라 메모(제목) 키워드 필터링
         List<Expense> allList = dataManager.getExpenses();
-        if (query == null || query.isEmpty()) {
-            adapter.updateData(allList);
-            updateEmptyState(allList);
-            return;
-        }
-
         List<Expense> filtered = new java.util.ArrayList<>();
+
+        int checkedId = binding.chipGroupFilter.getCheckedChipId();
+
         for (Expense e : allList) {
-            boolean matchMemo = e.getMemo() != null && e.getMemo().toLowerCase().contains(query.toLowerCase());
-            boolean matchCat = e.getCategory() != null && e.getCategory().toLowerCase().contains(query.toLowerCase());
-            if (matchMemo || matchCat) {
-                filtered.add(e);
+            boolean passChip = true;
+            if (checkedId == R.id.chipExpenseOnly) {
+                passChip = e.isMinus();
+            } else if (checkedId == R.id.chipIncomeOnly) {
+                passChip = !e.isMinus();
+            } else if (checkedId == R.id.chipWasteOnly) {
+                passChip = e.isMinus() && e.isWaste();
             }
+
+            if (!passChip) continue;
+
+            if (query != null && !query.isEmpty()) {
+                boolean matchMemo = e.getMemo() != null && e.getMemo().toLowerCase().contains(query.toLowerCase());
+                boolean matchCat = e.getCategory() != null && e.getCategory().toLowerCase().contains(query.toLowerCase());
+                if (!matchMemo && !matchCat) continue;
+            }
+
+            filtered.add(e);
         }
         adapter.updateData(filtered);
         updateEmptyState(filtered);
+    }
+
+    private void showCategoryStatsDialog() {
+        List<Expense> allList = dataManager.getExpenses();
+        java.util.Map<String, Integer> categorySums = new java.util.HashMap<>();
+        int totalExpense = 0;
+
+        for (Expense e : allList) {
+            if (e.isMinus()) {
+                String cat = e.getCategory();
+                int amt = e.getMoney();
+                Integer current = categorySums.get(cat);
+                int amtSum = (current != null ? current : 0) + amt;
+                categorySums.put(cat, amtSum);
+                totalExpense += amt;
+            }
+        }
+
+        StringBuilder sb = new StringBuilder();
+        sb.append(String.format(java.util.Locale.getDefault(), "총 지출 금액: %,d원\n\n[카테고리별 지출 비율]\n", totalExpense));
+
+        if (categorySums.isEmpty()) {
+            sb.append("지출 내역이 없습니다.");
+        } else {
+            for (java.util.Map.Entry<String, Integer> entry : categorySums.entrySet()) {
+                String cat = entry.getKey();
+                int amt = entry.getValue();
+                int percent = totalExpense > 0 ? (amt * 100) / totalExpense : 0;
+                sb.append(String.format(java.util.Locale.getDefault(), "• %s: %,d원 (%d%%)\n", cat, amt, percent));
+            }
+        }
+
+        new MaterialAlertDialogBuilder(this)
+                .setTitle("📈 카테고리별 지출 통계")
+                .setMessage(sb.toString())
+                .setPositiveButton("확인", null)
+                .show();
     }
 
     private void updateEmptyState(List<Expense> list) {

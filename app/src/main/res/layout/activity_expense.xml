@@ -29,12 +29,25 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnCategoryStats"
+            style="@style/Widget.Material3.Button.TonalButton"
+            android:layout_width="wrap_content"
+            android:layout_height="36dp"
+            android:insetTop="0dp"
+            android:insetBottom="0dp"
+            android:text="📈 카테고리 통계"
+            android:textSize="12sp"
+            app:layout_constraintBottom_toBottomOf="@id/tvExpenseTitle"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@id/tvExpenseTitle" />
+
         <!-- 낭비 챌린지 지출 리포트 카드 -->
         <com.google.android.material.card.MaterialCardView
             android:id="@+id/cvWasteReport"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
+            android:layout_marginTop="10dp"
             app:cardBackgroundColor="?attr/colorErrorContainer"
             app:cardCornerRadius="16dp"
             app:cardElevation="0dp"
@@ -45,7 +58,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:padding="16dp">
+                android:padding="14dp">
 
                 <TextView
                     android:id="@+id/tvWasteTitle"
@@ -61,12 +74,60 @@
                     android:id="@+id/tvWasteValue"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
+                    android:layout_marginTop="2dp"
                     android:text="@string/waste_report_zero"
                     android:textColor="?attr/colorOnErrorContainer"
                     android:textSize="13sp" />
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
+
+        <!-- 필터 칩 그룹 -->
+        <HorizontalScrollView
+            android:id="@+id/scrollChips"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:scrollbars="none"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/cvWasteReport">
+
+            <com.google.android.material.chip.ChipGroup
+                android:id="@+id/chipGroupFilter"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:singleSelection="true">
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chipAll"
+                    style="@style/Widget.Material3.Chip.Filter"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:checked="true"
+                    android:text="전체" />
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chipExpenseOnly"
+                    style="@style/Widget.Material3.Chip.Filter"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="지출 💸" />
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chipIncomeOnly"
+                    style="@style/Widget.Material3.Chip.Filter"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="수입 💰" />
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chipWasteOnly"
+                    style="@style/Widget.Material3.Chip.Filter"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="낭비 🚨" />
+            </com.google.android.material.chip.ChipGroup>
+        </HorizontalScrollView>
 
         <!-- 실시간 검색창 -->
         <com.google.android.material.textfield.TextInputLayout
@@ -74,11 +135,11 @@
             style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
+            android:layout_marginTop="4dp"
             android:hint="@string/hint_search_expense"
             app:endIconMode="clear_text"
             app:startIconDrawable="@android:drawable/ic_menu_search"
-            app:layout_constraintTop_toBottomOf="@id/cvWasteReport">
+            app:layout_constraintTop_toBottomOf="@id/scrollChips">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/etSearchExpense"
@@ -106,7 +167,7 @@
             android:id="@+id/rvExpenseList"
             android:layout_width="0dp"
             android:layout_height="0dp"
-            android:layout_marginTop="10dp"
+            android:layout_marginTop="8dp"
             android:clipToPadding="false"
             android:paddingBottom="88dp"
             app:layout_constraintBottom_toBottomOf="parent"

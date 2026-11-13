@@ -150,6 +150,46 @@ public class SettingsActivity extends AppCompatActivity {
                     .show();
         });
 
+        binding.btnExportBackup.setOnClickListener(v -> {
+            String backupJson = dataManager.exportBackupJson();
+            if (backupJson.isEmpty()) {
+                Toast.makeText(this, "백업 데이터 생성 실패", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            Intent shareIntent = new Intent(Intent.ACTION_SEND);
+            shareIntent.setType("text/plain");
+            shareIntent.putExtra(Intent.EXTRA_SUBJECT, "MLM_Backup_Data.json");
+            shareIntent.putExtra(Intent.EXTRA_TEXT, backupJson);
+            startActivity(Intent.createChooser(shareIntent, "데이터 백업 파일 공유"));
+        });
+
+        binding.btnImportRestore.setOnClickListener(v -> {
+            android.widget.EditText etInput = new android.widget.EditText(this);
+            etInput.setHint("백업받은 JSON 텍스트를 여기에 붙여넣으세요");
+            etInput.setMinLines(5);
+            etInput.setPadding(40, 40, 40, 40);
+
+            new MaterialAlertDialogBuilder(this)
+                    .setTitle("데이터 복원")
+                    .setView(etInput)
+                    .setPositiveButton("복원하기", (dialog, which) -> {
+                        String json = etInput.getText().toString().trim();
+                        if (json.isEmpty()) {
+                            Toast.makeText(this, "JSON 텍스트가 비어있습니다", Toast.LENGTH_SHORT).show();
+                            return;
+                        }
+                        boolean success = dataManager.importBackupJson(json);
+                        if (success) {
+                            Toast.makeText(this, "데이터가 성공적으로 복원되었습니다!", Toast.LENGTH_LONG).show();
+                            recreate();
+                        } else {
+                            Toast.makeText(this, "복원 실패: 올바르지 않은 JSON 포맷입니다", Toast.LENGTH_SHORT).show();
+                        }
+                    })
+                    .setNegativeButton("취소", null)
+                    .show();
+        });
+
         binding.bottomNavigation.setOnItemSelectedListener(item -> {
             int id = item.getItemId();
             if (id == R.id.navigation_home) {

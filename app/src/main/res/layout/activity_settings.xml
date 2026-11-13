@@ -257,6 +257,38 @@
                 android:layout_marginBottom="24dp"
                 android:background="?attr/colorOutlineVariant" />
 
+            <!-- 백업 및 복원 버튼 -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="12dp"
+                android:orientation="horizontal">
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnExportBackup"
+                    android:layout_width="0dp"
+                    android:layout_height="48dp"
+                    android:layout_marginEnd="6dp"
+                    android:layout_weight="1"
+                    android:text="데이터 백업 (JSON)"
+                    android:textColor="?attr/colorOnSecondaryContainer"
+                    android:textSize="13sp"
+                    app:backgroundTint="?attr/colorSecondaryContainer"
+                    app:cornerRadius="12dp" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnImportRestore"
+                    android:layout_width="0dp"
+                    android:layout_height="48dp"
+                    android:layout_marginStart="6dp"
+                    android:layout_weight="1"
+                    android:text="데이터 복원 (JSON)"
+                    android:textColor="?attr/colorOnSecondaryContainer"
+                    android:textSize="13sp"
+                    app:backgroundTint="?attr/colorSecondaryContainer"
+                    app:cornerRadius="12dp" />
+            </LinearLayout>
+
             <!-- 초기화 버튼 -->
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnResetData"

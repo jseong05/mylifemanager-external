@@ -263,4 +263,48 @@ public class MyDataStore {
     public int getTargetSavingsGoal() {
         return prefs.getInt(KEY_SAVINGS_GOAL, 500000);
     }
+
+    public String exportBackupJson() {
+        try {
+            java.util.Map<String, Object> backup = new java.util.HashMap<>();
+            backup.put("user_name", getUserName());
+            backup.put("initial_balance", getInitialBalance());
+            backup.put("expenses", getExpenses());
+            backup.put("schedules", getSchedules());
+            backup.put("allowance_amount", getAllowanceAmount());
+            backup.put("allowance_cycle", getAllowanceCycle());
+            backup.put("allowance_day", getAllowanceDay());
+            backup.put("target_savings_goal", getTargetSavingsGoal());
+            return gson.toJson(backup);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return "";
+        }
+    }
+
+    public boolean importBackupJson(String json) {
+        try {
+            java.util.Map<String, Object> data = gson.fromJson(json, new TypeToken<java.util.Map<String, Object>>() {}.getType());
+            if (data != null) {
+                if (data.containsKey("user_name")) saveUserName(String.valueOf(data.get("user_name")));
+                if (data.containsKey("initial_balance")) saveFirstMoney(((Number) data.get("initial_balance")).intValue());
+                if (data.containsKey("allowance_amount")) saveAllowanceAmount(((Number) data.get("allowance_amount")).intValue());
+                if (data.containsKey("allowance_cycle")) saveAllowanceCycle(String.valueOf(data.get("allowance_cycle")));
+                if (data.containsKey("allowance_day")) saveAllowanceDay(((Number) data.get("allowance_day")).intValue());
+                if (data.containsKey("target_savings_goal")) saveTargetSavingsGoal(((Number) data.get("target_savings_goal")).intValue());
+
+                String expJson = gson.toJson(data.get("expenses"));
+                List<Expense> expList = gson.fromJson(expJson, new TypeToken<ArrayList<Expense>>() {}.getType());
+                if (expList != null) saveExpenses(expList);
+
+                String schJson = gson.toJson(data.get("schedules"));
+                List<Schedule> schList = gson.fromJson(schJson, new TypeToken<ArrayList<Schedule>>() {}.getType());
+                if (schList != null) saveSchedules(schList);
+                return true;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
 }
