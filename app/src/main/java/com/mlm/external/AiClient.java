@@ -7,6 +7,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import java.io.BufferedReader;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
@@ -19,12 +20,10 @@ public class AiClient {
     private static final String API_KEY = BuildConfig.AI_API_KEY;
     private static final String ENDPOINT = "https://api.groq.com/openai/v1/chat/completions";
 
-    // 지원하는 Groq 모델 후보군 순회 (하나가 실패하거나 퇴역되었어도 다음 모델로 자동 시도)
+    // Groq 프로덕션 모델 후보군
     private static final String[] MODEL_CANDIDATES = {
-            "llama-3.3-70b-versatile",
-            "llama-3.1-8b-instant",
-            "gemma2-9b-it",
-            "deepseek-r1-distill-llama-70b"
+            "openai/gpt-oss-120b",
+            "openai/gpt-oss-20b"
     };
 
     private static final ExecutorService EXECUTOR = Executors.newSingleThreadExecutor();
@@ -60,7 +59,8 @@ public class AiClient {
                     conn.setDoOutput(true);
 
                     String personaInstruction = getPersonaInstruction(persona);
-                    String systemContext = String.format(Locale.getDefault(), "지침: %s\n현재 사용자 재무 상태 - 잔액: %,d원, 오늘 지출: %,d원",
+                    String systemContext = String.format(Locale.getDefault(),
+                            "지침: %s\n현재 사용자 재무 상태 - 잔액: %,d원, 오늘 지출: %,d원",
                             personaInstruction, balance, todayExpense);
 
                     JsonArray messagesArray = new JsonArray();
@@ -90,7 +90,7 @@ public class AiClient {
                     int responseCode = conn.getResponseCode();
                     Log.d("AiClient", "Model: " + modelName + " | Response Code: " + responseCode);
 
-                    if (responseCode == HttpURLConnection.HTTP_OK) {
+                    if (responseCode >= 200 && responseCode < 300) {
                         BufferedReader in = new BufferedReader(new InputStreamReader(conn.getInputStream(), "UTF-8"));
                         StringBuilder response = new StringBuilder();
                         String inputLine;
@@ -108,10 +108,19 @@ public class AiClient {
                             if (message != null && message.has("content")) {
                                 resultText = message.get("content").getAsString().trim();
                                 success = true;
-                                break; // 성공 시 루프 탈출
+                                break;
                             }
                         }
+                    } else {
+                        String errorBody = readErrorBody(conn);
+                        if (errorBody != null && !errorBody.trim().isEmpty()) {
+                            Log.w("AiClient", "Model " + modelName + " failed with HTTP "
+                                    + responseCode + ": " + sanitizeErrorBody(errorBody));
+                        } else {
+                            Log.w("AiClient", "Model " + modelName + " failed with HTTP " + responseCode);
+                        }
                     }
+
                 } catch (Exception e) {
                     Log.w("AiClient", "Model " + modelName + " failed: " + e.getMessage());
                 } finally {
@@ -127,11 +136,46 @@ public class AiClient {
                 final String finalRes = resultText;
                 handler.post(() -> callback.onSuccess(finalRes));
             } else {
-                // 모든 후보 모델 실패 시 오프라인 엔진으로 자동 폴백
                 String offlineReply = OfflineAiEngine.getResponse(userPrompt, persona, balance, todayExpense);
                 handler.post(() -> callback.onSuccess(offlineReply));
             }
         });
+    }
+
+    private static String readErrorBody(HttpURLConnection conn) {
+        try {
+            InputStream errorStream = conn.getErrorStream();
+            if (errorStream == null) {
+                return null;
+            }
+
+            BufferedReader reader = new BufferedReader(new InputStreamReader(errorStream, "UTF-8"));
+            StringBuilder response = new StringBuilder();
+            String line;
+            while ((line = reader.readLine()) != null) {
+                response.append(line);
+            }
+            reader.close();
+            return response.toString();
+        } catch (Exception e) {
+            Log.w("AiClient", "Failed to read error body: " + e.getMessage());
+            return null;
+        }
+    }
+
+    private static String sanitizeErrorBody(String rawBody) {
+        if (rawBody == null) {
+            return "";
+        }
+
+        String sanitized = rawBody
+                .replaceAll("(?i)(Bearer\\s+)[A-Za-z0-9._-]+", "$1[REDACTED]")
+                .replaceAll("(?i)(api[_-]?key\\s*[:=]\\s*)[^\\s\"'.,;]+", "$1[REDACTED]")
+                .replaceAll("(?i)(gsk_[A-Za-z0-9]+)", "[REDACTED]")
+                .replaceAll("\\s+", " ")
+                .trim();
+
+        return sanitized.length() > 500 ? sanitized.substring(0, 500) + "..." : sanitized;
     }
 
     private static String getPersonaInstruction(String persona) {
