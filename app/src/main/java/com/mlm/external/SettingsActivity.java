@@ -92,6 +92,16 @@ public class SettingsActivity extends AppCompatActivity {
             }
         }
 
+        // AI 페르소나 세팅
+        String currentPersona = dataManager.getAiPersona();
+        String[] personas = getResources().getStringArray(R.array.ai_personas);
+        for (int i = 0; i < personas.length; i++) {
+            if (personas[i].equals(currentPersona)) {
+                binding.spAiPersona.setSelection(i);
+                break;
+            }
+        }
+
         binding.btnSaveSettings.setOnClickListener(v -> {
             String name = binding.etUserName.getText().toString().trim();
             String balanceStr = binding.etInitialBalance.getText().toString().trim();
@@ -124,6 +134,8 @@ public class SettingsActivity extends AppCompatActivity {
             String[] cityArray = getResources().getStringArray(R.array.cities_value);
             String saveCity = (cityPos >= 0 && cityPos < cityArray.length) ? cityArray[cityPos] : "Seoul";
 
+            String savePersona = binding.spAiPersona.getSelectedItem().toString();
+
             dataManager.saveUserName(name);
             dataManager.saveFirstMoney(balance);
             dataManager.saveAllowanceAmount(allowance);
@@ -132,6 +144,7 @@ public class SettingsActivity extends AppCompatActivity {
             dataManager.saveUseGps(saveUseGps);
             dataManager.saveWeatherCity(saveCity);
             dataManager.saveTargetSavingsGoal(goal);
+            dataManager.saveAiPersona(savePersona);
 
             Toast.makeText(this, "설정이 저장되었습니다.", Toast.LENGTH_SHORT).show();
             finish();

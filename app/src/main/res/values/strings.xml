@@ -21,6 +21,12 @@
     <string name="nav_expense">가계부</string>
     <string name="nav_schedule">계획표</string>
 
+    <string-array name="ai_personas">
+        <item>팩폭형 코치</item>
+        <item>천사형 상담사</item>
+        <item>냉철한 재무관</item>
+    </string-array>
+
     <!-- 일정 화면 -->
     <string name="schedule_title">나의 계획표</string>
     <string name="schedule_empty">등록된 일정이 없어요\n+ 버튼을 눌러 추가해 보세요</string>

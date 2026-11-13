@@ -193,6 +193,25 @@
                     android:layout_height="wrap_content" />
             </LinearLayout>
 
+            <!-- 섹션: AI 에이전트 페르소나 설정 -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                android:layout_marginBottom="8dp"
+                android:letterSpacing="0.08"
+                android:text="🤖 AI 에이전트 성격(페르소나) 설정"
+                android:textColor="?attr/colorPrimary"
+                android:textSize="14sp"
+                android:textStyle="bold" />
+
+            <Spinner
+                android:id="@+id/spAiPersona"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:entries="@array/ai_personas"
+                android:minHeight="48dp" />
+
             <!-- 섹션: 날씨 및 위치 설정 -->
             <TextView
                 android:layout_width="wrap_content"

@@ -11,6 +11,7 @@ if (localPropertiesFile.exists()) {
     localPropertiesFile.inputStream().use { localProperties.load(it) }
 }
 val weatherApiKey: String = localProperties.getProperty("weatherApiKey") ?: ""
+val aiApiKey: String = localProperties.getProperty("aiApiKey") ?: ""
 
 android {
     namespace = "com.mlm.external"
@@ -28,6 +29,7 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
         buildConfigField("String", "WEATHER_API_KEY", "\"$weatherApiKey\"")
+        buildConfigField("String", "AI_API_KEY", "\"$aiApiKey\"")
     }
 
     buildTypes {

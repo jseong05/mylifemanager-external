@@ -28,6 +28,8 @@ public class MyDataStore {
     private static final String KEY_WEATHER_CITY = "weather_city";
     private static final String KEY_DATA_MIGRATED = "data_migrated_v2";
     private static final String KEY_SAVINGS_GOAL = "target_savings_goal";
+    private static final String KEY_AI_PERSONA = "ai_persona";
+    private static final String KEY_AI_CHAT_HISTORY = "ai_chat_history";
 
     private Context context;
     private SharedPreferences prefs;
@@ -306,5 +308,31 @@ public class MyDataStore {
             e.printStackTrace();
         }
         return false;
+    }
+
+    public void saveAiPersona(String persona) {
+        prefs.edit().putString(KEY_AI_PERSONA, persona).apply();
+    }
+
+    public String getAiPersona() {
+        return prefs.getString(KEY_AI_PERSONA, "팩폭형 코치");
+    }
+
+    public void saveChatMessages(List<AiMessage> list) {
+        String json = gson.toJson(list);
+        prefs.edit().putString(KEY_AI_CHAT_HISTORY, json).apply();
+    }
+
+    public List<AiMessage> getChatMessages() {
+        String json = prefs.getString(KEY_AI_CHAT_HISTORY, null);
+        if (json == null) return new ArrayList<>();
+        try {
+            Type type = new TypeToken<ArrayList<AiMessage>>() {}.getType();
+            List<AiMessage> list = gson.fromJson(json, type);
+            return list != null ? list : new ArrayList<>();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ArrayList<>();
+        }
     }
 }
