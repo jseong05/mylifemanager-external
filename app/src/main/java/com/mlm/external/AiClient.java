@@ -2,6 +2,7 @@ package com.mlm.external;
 
 import android.os.Handler;
 import android.os.Looper;
+import android.util.Log;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -28,8 +29,10 @@ public class AiClient {
     public static void generateAiResponse(String userPrompt, String persona, int balance, int todayExpense, AiCallback callback) {
         Handler handler = new Handler(Looper.getMainLooper());
 
+        Log.d("AiClient", "API_KEY check: " + (API_KEY != null && API_KEY.length() > 6 ? API_KEY.substring(0, 6) + "..." : API_KEY));
+
         if (API_KEY == null || API_KEY.isEmpty() || !API_KEY.startsWith("gsk_")) {
-            // API 키가 없거나 형식이 올바르지 않으면 오프라인 스마트 AI 엔진으로 즉시 폴백
+            Log.w("AiClient", "API_KEY is missing or invalid! Using offline engine.");
             String offlineReply = OfflineAiEngine.getResponse(userPrompt, persona, balance, todayExpense);
             handler.post(() -> callback.onSuccess(offlineReply));
             return;
@@ -47,20 +50,17 @@ public class AiClient {
                 conn.setReadTimeout(8000);
                 conn.setDoOutput(true);
 
-                // Build OpenAI-compatible Chat Completions payload for Groq
                 String personaInstruction = getPersonaInstruction(persona);
                 String systemContext = String.format(Locale.getDefault(), "지침: %s\n현재 사용자 재무 상태 - 잔액: %,d원, 오늘 지출: %,d원",
                         personaInstruction, balance, todayExpense);
 
                 JsonArray messagesArray = new JsonArray();
 
-                // System message (Persona & Context)
                 JsonObject systemMsg = new JsonObject();
                 systemMsg.addProperty("role", "system");
                 systemMsg.addProperty("content", systemContext);
                 messagesArray.add(systemMsg);
 
-                // User message
                 JsonObject userMsg = new JsonObject();
                 userMsg.addProperty("role", "user");
                 userMsg.addProperty("content", userPrompt);
@@ -79,6 +79,8 @@ public class AiClient {
                 os.close();
 
                 int responseCode = conn.getResponseCode();
+                Log.d("AiClient", "Groq Response Code: " + responseCode);
+
                 if (responseCode == HttpURLConnection.HTTP_OK) {
                     BufferedReader in = new BufferedReader(new InputStreamReader(conn.getInputStream(), "UTF-8"));
                     StringBuilder response = new StringBuilder();
@@ -100,7 +102,6 @@ public class AiClient {
                             return;
                         }
                     }
-                    // Fallback to offline engine if parsing fails
                     String offlineReply = OfflineAiEngine.getResponse(userPrompt, persona, balance, todayExpense);
                     handler.post(() -> callback.onSuccess(offlineReply));
                 } else {
@@ -112,14 +113,14 @@ public class AiClient {
                     }
                     errIn.close();
 
-                    // Fallback to offline engine on Groq API error (rate limit, invalid key, etc.)
-                    String offlineReply = OfflineAiEngine.getResponse(userPrompt, persona, balance, todayExpense);
-                    handler.post(() -> callback.onSuccess(offlineReply));
+                    Log.e("AiClient", "Groq API Error: " + errResp.toString());
+                    String errorMsg = "Groq API 에러 (" + responseCode + "): " + errResp.toString();
+                    handler.post(() -> callback.onSuccess(errorMsg));
                 }
             } catch (Exception e) {
-                // Fallback to offline engine on exception
-                String offlineReply = OfflineAiEngine.getResponse(userPrompt, persona, balance, todayExpense);
-                handler.post(() -> callback.onSuccess(offlineReply));
+                Log.e("AiClient", "Groq Network Exception", e);
+                String errorMsg = "Groq 네트워크 에러: " + e.getMessage();
+                handler.post(() -> callback.onSuccess(errorMsg));
             } finally {
                 if (conn != null) {
                     try {
