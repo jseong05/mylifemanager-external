@@ -18,7 +18,7 @@ import java.util.concurrent.Executors;
 public class AiClient {
     private static final String API_KEY = BuildConfig.AI_API_KEY;
     private static final String ENDPOINT = "https://api.groq.com/openai/v1/chat/completions";
-    private static final String MODEL_NAME = "llama3-8b-8192";
+    private static final String MODEL_NAME = "gemma2-9b-it";
     private static final ExecutorService EXECUTOR = Executors.newSingleThreadExecutor();
 
     public interface AiCallback {
