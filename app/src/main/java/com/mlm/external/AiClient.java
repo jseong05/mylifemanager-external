@@ -15,7 +15,7 @@ import java.util.concurrent.Executors;
 
 public class AiClient {
     private static final String API_KEY = BuildConfig.AI_API_KEY;
-    private static final String ENDPOINT = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=";
+    private static final String ENDPOINT = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=";
     private static final ExecutorService EXECUTOR = Executors.newSingleThreadExecutor();
 
     public interface AiCallback {

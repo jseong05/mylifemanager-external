@@ -153,6 +153,11 @@ public class MainActivity extends AppCompatActivity {
             overridePendingTransition(0, 0);
         });
 
+        binding.cvAiChatShortcut.setOnClickListener(v -> {
+            Intent intent = new Intent(this, AiChatActivity.class);
+            startActivity(intent);
+        });
+
         // 10/23
         // 메인 화면에서 뒤로가기 버튼 2번 누르면 앱 종료 처리
         getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
