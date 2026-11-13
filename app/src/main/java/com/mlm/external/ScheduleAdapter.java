@@ -1,11 +1,11 @@
-package com.mlm;
+package com.mlm.external;
 
 import android.graphics.Paint;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
-import com.mlm.databinding.ItemScheduleBinding;
+import com.mlm.external.databinding.ItemScheduleBinding;
 import java.util.List;
 
 public class ScheduleAdapter extends RecyclerView.Adapter<ScheduleAdapter.ScheduleViewHolder> {

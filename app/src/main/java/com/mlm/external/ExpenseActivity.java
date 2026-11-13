@@ -1,4 +1,4 @@
-package com.mlm;
+package com.mlm.external;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -13,8 +13,8 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
-import com.mlm.databinding.ActivityExpenseBinding;
-import com.mlm.databinding.DialogAddExpenseBinding;
+import com.mlm.external.databinding.ActivityExpenseBinding;
+import com.mlm.external.databinding.DialogAddExpenseBinding;
 import java.util.List;
 import java.util.UUID;
 

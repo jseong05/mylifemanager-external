@@ -1,4 +1,4 @@
-package com.mlm;
+package com.mlm.external;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -7,7 +7,7 @@ import android.widget.ArrayAdapter;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
-import com.mlm.databinding.ActivitySettingsBinding;
+import com.mlm.external.databinding.ActivitySettingsBinding;
 import java.util.ArrayList;
 import java.util.List;
 

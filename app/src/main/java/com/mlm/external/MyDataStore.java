@@ -1,4 +1,4 @@
-package com.mlm;
+package com.mlm.external;
 
 import android.content.Context;
 import android.content.SharedPreferences;

@@ -1,4 +1,4 @@
-package com.mlm;
+package com.mlm.external;
 
 import android.app.PendingIntent;
 import android.appwidget.AppWidgetManager;

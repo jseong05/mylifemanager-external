@@ -1,4 +1,4 @@
-package com.mlm;
+package com.mlm.external;
 
 import com.prolificinteractive.materialcalendarview.CalendarDay;
 import com.prolificinteractive.materialcalendarview.DayViewDecorator;

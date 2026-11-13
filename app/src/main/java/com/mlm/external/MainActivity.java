@@ -1,4 +1,4 @@
-package com.mlm;
+package com.mlm.external;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import android.Manifest;
@@ -17,7 +17,7 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
-import com.mlm.databinding.ActivityMainBinding;
+import com.mlm.external.databinding.ActivityMainBinding;
 import androidx.activity.OnBackPressedCallback; // 10/23 뒤로가기 콜백
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;

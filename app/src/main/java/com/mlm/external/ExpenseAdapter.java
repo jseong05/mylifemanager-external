@@ -1,10 +1,10 @@
-package com.mlm;
+package com.mlm.external;
 
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
-import com.mlm.databinding.ItemExpenseBinding;
+import com.mlm.external.databinding.ItemExpenseBinding;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;

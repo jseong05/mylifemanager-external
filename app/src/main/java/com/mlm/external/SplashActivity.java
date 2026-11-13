@@ -1,11 +1,11 @@
-package com.mlm;
+package com.mlm.external;
 
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import androidx.appcompat.app.AppCompatActivity;
-import com.mlm.databinding.ActivitySplashBinding;
+import com.mlm.external.databinding.ActivitySplashBinding;
 import java.util.Random;
 
 public class SplashActivity extends AppCompatActivity {

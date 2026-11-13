@@ -1,4 +1,4 @@
-package com.mlm;
+package com.mlm.external;
 
 import com.google.gson.annotations.SerializedName;
 

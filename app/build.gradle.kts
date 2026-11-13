@@ -13,13 +13,13 @@ if (localPropertiesFile.exists()) {
 val weatherApiKey: String = localProperties.getProperty("weatherApiKey") ?: ""
 
 android {
-    namespace = "com.mlm"
+    namespace = "com.mlm.external"
     compileSdk {
         version = release(37)
     }
 
     defaultConfig {
-        applicationId = "com.mlm"
+        applicationId = "com.mlm.external"
         minSdk = 24
         targetSdk = 37
         versionCode = 1

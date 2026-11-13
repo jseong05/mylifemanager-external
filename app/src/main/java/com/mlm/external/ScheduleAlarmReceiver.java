@@ -1,4 +1,4 @@
-package com.mlm;
+package com.mlm.external;
 
 import android.annotation.SuppressLint;
 import android.app.NotificationChannel;

@@ -1,4 +1,4 @@
-package com.mlm;
+package com.mlm.external;
 
 import android.Manifest;
 import android.app.AlarmManager;
@@ -26,7 +26,7 @@ import com.google.android.material.chip.Chip;
 import com.google.android.material.chip.ChipGroup;
 import com.google.android.material.timepicker.MaterialTimePicker;
 import com.google.android.material.timepicker.TimeFormat;
-import com.mlm.databinding.ActivityScheduleBinding;
+import com.mlm.external.databinding.ActivityScheduleBinding;
 import com.prolificinteractive.materialcalendarview.CalendarDay;
 import com.prolificinteractive.materialcalendarview.MaterialCalendarView;
 import java.text.SimpleDateFormat;
